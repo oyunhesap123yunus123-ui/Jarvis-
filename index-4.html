@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>J.A.R.V.I.S.</title>
+<!-- PWA -->
+<link rel="manifest" href="data:application/json,{
+  %22name%22:%22J.A.R.V.I.S.%22,
+  %22short_name%22:%22JARVIS%22,
+  %22start_url%22:%22.%22,
+  %22display%22:%22standalone%22,
+  %22background_color%22:%22%23050810%22,
+  %22theme_color%22:%22%2300f5ff%22,
+  %22orientation%22:%22portrait%22,
+  %22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' fill='%23050810'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%2300f5ff' stroke-width='12'/%3E%3Ccircle cx='256' cy='256' r='140' fill='none' stroke='%23ff6b00' stroke-width='6'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%2300f5ff' opacity='0.8'/%3E%3C/svg%3E%22,%22sizes%22:%22512x512%22,%22type%22:%22image/svg+xml%22,%22purpose%22:%22any maskable%22}]
+}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="J.A.R.V.I.S.">
+<meta name="theme-color" content="#050810">
+<meta name="description" content="J.A.R.V.I.S. Personal AI Interface">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--c:#00f5ff;--cd:#00b8c4;--cg:rgba(0,245,255,.3);--o:#ff6b00;--od:#cc5500;--og:rgba(255,107,0,.3);--bg:#050810;--panel:rgba(0,20,35,.85);--pb:rgba(0,245,255,.15);--tp:#e0f7ff;--td:rgba(180,230,240,.5);}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;background:var(--bg);font-family:'Share Tech Mono',monospace;color:var(--tp);user-select:none;-webkit-tap-highlight-color:transparent;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);pointer-events:none;z-index:9999;}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,245,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,245,255,.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+
+/* GLITCH */
+#go{position:fixed;inset:0;z-index:9000;pointer-events:none;opacity:0;}
+#go.active{animation:ga .5s ease-out forwards;}
+@keyframes ga{0%{opacity:0}10%{opacity:1;background:rgba(0,245,255,.1);transform:translateX(-4px)}25%{background:rgba(255,107,0,.07);transform:translateX(3px)}45%{opacity:.7;transform:translateX(-1px)}70%{opacity:.2}100%{opacity:0;transform:none}}
+
+/* USER BTN */
+#upb{position:fixed;top:10px;left:55px;z-index:600;display:flex;align-items:center;gap:7px;cursor:pointer;background:rgba(0,10,25,.92);border:1px solid rgba(0,245,255,.35);border-radius:20px;padding:5px 11px 5px 6px;backdrop-filter:blur(8px);transition:all .25s;}
+#upb:hover{border-color:var(--c);box-shadow:0 0 14px var(--cg);}
+#upb-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;font-family:'Orbitron',monospace;border:1.5px solid var(--c);transition:all .3s;}
+#upb-nm{font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:2px;color:var(--c);transition:all .3s;}
+.upb-ca{font-size:9px;color:var(--td);transition:transform .25s;}
+#upb.open .upb-ca{transform:rotate(180deg);}
+
+/* DROPDOWN */
+#upd{position:fixed;top:46px;left:55px;z-index:599;background:rgba(0,8,22,.97);border:1px solid rgba(0,245,255,.25);border-radius:12px;overflow:hidden;width:215px;opacity:0;pointer-events:none;transform:translateY(-8px) scale(.96);transition:opacity .2s,transform .2s;backdrop-filter:blur(16px);}
+#upd.open{opacity:1;pointer-events:all;transform:translateY(0) scale(1);}
+.udh{padding:10px 14px 8px;font-size:8px;letter-spacing:3px;color:var(--td);border-bottom:1px solid rgba(0,245,255,.1);}
+.udu{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;transition:background .2s;border-bottom:1px solid rgba(0,245,255,.06);}
+.udu:last-child{border-bottom:none;}.udu:hover{background:rgba(0,245,255,.05);}.udu.sel{background:rgba(0,245,255,.07);}
+.udav{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:13px;font-weight:900;flex-shrink:0;border:1.5px solid;}
+.udav.y{border-color:var(--o);color:var(--o);background:rgba(255,107,0,.1);}
+.udav.e{border-color:#cc0033;color:#ff2255;background:rgba(200,0,50,.1);}
+.udi{flex:1;}.udn{font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:2px;}
+.udn.y{color:var(--o);}.udn.e{color:#ff2255;}
+.udr{font-size:8px;letter-spacing:1px;color:var(--td);margin-top:2px;}
+.udc{font-size:14px;color:var(--c);opacity:0;transition:opacity .2s;}.udu.sel .udc{opacity:1;}
+
+/* APP */
+#app{position:relative;width:100%;height:100%;display:flex;flex-direction:column;z-index:1;}
+#hdr{padding:12px 16px 8px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--pb);background:linear-gradient(180deg,rgba(0,10,20,.95),transparent);flex-shrink:0;}
+.hlogo{font-family:'Orbitron',monospace;font-size:11px;font-weight:900;letter-spacing:4px;color:var(--c);text-shadow:0 0 10px var(--c);}
+#hu{font-size:10px;letter-spacing:2px;color:var(--o);text-shadow:0 0 8px var(--o);transition:all .4s;}
+.hst{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--cd);}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--c);box-shadow:0 0 8px var(--c);animation:pd 2s infinite;}
+@keyframes pd{0%,100%{opacity:1}50%{opacity:.3}}
+
+#wi{position:fixed;top:56px;right:12px;z-index:200;}
+#mb{width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(0,245,255,.3);background:rgba(0,245,255,.05);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .3s;}
+#mb.on{border-color:#ff2244;background:rgba(255,34,68,.2);box-shadow:0 0 0 4px rgba(255,34,68,.15),0 0 20px rgba(255,34,68,.4);animation:mp 0.8s infinite;}
+@keyframes mp{0%,100%{transform:scale(1);box-shadow:0 0 0 4px rgba(255,34,68,.15),0 0 16px rgba(255,34,68,.3)}50%{transform:scale(1.15);box-shadow:0 0 0 8px rgba(255,34,68,.1),0 0 28px rgba(255,34,68,.5)}}
+
+/* MIC LISTENING LABEL */
+#mic-label{position:fixed;top:98px;right:8px;font-size:8px;letter-spacing:2px;color:#ff2244;font-family:'Orbitron',monospace;opacity:0;transition:opacity .3s;text-shadow:0 0 8px #ff2244;}
+#mic-label.vis{opacity:1;}
+
+#sp{position:fixed;bottom:72px;left:55px;right:12px;background:rgba(0,10,25,.96);border:1px solid var(--c);border-radius:10px;padding:10px 14px;font-size:11px;letter-spacing:1px;color:var(--c);z-index:500;opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;}
+#sp.vis{opacity:1;transform:translateY(0);}
+
+/* DOCK */
+#ld{position:fixed;left:0;top:52px;bottom:60px;z-index:100;display:flex;flex-direction:column;gap:10px;padding:10px 8px;background:rgba(0,8,20,.85);border-right:1px solid var(--pb);overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;}#ld::-webkit-scrollbar{display:none;}
+.di{width:36px;height:36px;border:1px solid rgba(0,245,255,.2);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;background:rgba(0,245,255,.03);transition:all .2s;font-size:15px;position:relative;}
+.di:hover{border-color:var(--c);background:rgba(0,245,255,.1);box-shadow:0 0 10px var(--cg);}
+.di.act{border-color:var(--o);background:rgba(255,107,0,.1);box-shadow:0 0 10px var(--og);}
+.dtt{position:absolute;left:44px;background:rgba(0,10,20,.95);border:1px solid var(--c);border-radius:4px;padding:3px 8px;font-size:9px;letter-spacing:1px;color:var(--c);white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s;z-index:200;}
+.di:hover .dtt{opacity:1;}
+
+/* MAIN */
+#main{flex:1;overflow:hidden;position:relative;padding-left:50px;}
+.mp{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:12px;opacity:0;transform:scale(.97);transition:opacity .4s,transform .4s;pointer-events:none;overflow-y:scroll;-webkit-overflow-scrolling:touch;}
+.mp.act{opacity:1;transform:scale(1);pointer-events:all;}
+
+/* ARC REACTOR */
+.arw{position:relative;width:175px;height:175px;flex-shrink:0;margin:12px 0 10px;}
+.ar{position:absolute;inset:0;border-radius:50%;}
+.ar1{border:2px solid var(--c);box-shadow:0 0 12px var(--c),inset 0 0 12px rgba(0,245,255,.1);animation:s1 8s linear infinite;transition:border-color .8s,box-shadow .8s;}
+.ar2{inset:12px;border:1px solid rgba(0,245,255,.4);border-top-color:var(--o);border-right-color:var(--o);animation:s2 5s linear infinite;}
+.ar3{inset:22px;border:1px solid rgba(0,245,255,.3);border-bottom-color:var(--c);border-left-color:var(--c);animation:s1 3s linear infinite;}
+@keyframes s1{to{transform:rotate(360deg)}}@keyframes s2{to{transform:rotate(-360deg)}}
+#ac{position:absolute;inset:35px;border-radius:50%;background:radial-gradient(circle,#00f5ff 0%,#00a0b0 40%,#003040 70%,transparent 100%);box-shadow:0 0 20px var(--c),0 0 40px rgba(0,245,255,.4),inset 0 0 20px rgba(0,245,255,.3);animation:br 3s ease-in-out infinite;display:flex;align-items:center;justify-content:center;transition:background .8s,box-shadow .8s;}
+@keyframes br{0%,100%{filter:brightness(1)}50%{filter:brightness(1.2)}}
+.ahx::before{content:'⬡';font-size:34px;color:rgba(0,0,0,.6);text-shadow:0 0 10px var(--c);line-height:38px;}
+#atk{position:absolute;inset:-8px;border-radius:50%;}
+.atk{position:absolute;width:2px;height:6px;background:var(--c);left:50%;transform-origin:bottom center;opacity:.3;}
+.rwp{position:absolute;inset:-20px;border-radius:50%;border:2px solid var(--c);opacity:0;}
+.rwp.act{animation:we 1.5s ease-out 3;}
+@keyframes we{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.5);opacity:0}}
+.arw.pls .ar1{animation:s1 4s linear infinite,rp .4s ease-in-out 3;}
+@keyframes rp{0%,100%{filter:brightness(1)}50%{filter:brightness(2)}}
+.arw.lb{animation:ls .55s ease-in-out 8;}
+@keyframes ls{0%,100%{filter:none}50%{filter:brightness(1.9) saturate(3) drop-shadow(0 0 22px #ff4400)}}
+
+#clk{font-family:'Orbitron',monospace;font-size:30px;font-weight:700;letter-spacing:4px;color:var(--c);text-shadow:0 0 20px var(--c);margin:4px 0;}
+#dl{font-size:9px;letter-spacing:3px;color:var(--o);margin-bottom:14px;}
+
+.bw{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--pb);border-radius:8px;padding:10px 14px;width:100%;max-width:280px;margin-bottom:10px;}
+.bi{width:40px;height:20px;border:2px solid var(--c);border-radius:3px;position:relative;flex-shrink:0;}
+.bi::after{content:'';position:absolute;right:-6px;top:50%;transform:translateY(-50%);width:4px;height:8px;background:var(--c);border-radius:0 2px 2px 0;}
+#bf{height:100%;background:linear-gradient(90deg,var(--c),var(--cd));border-radius:2px;box-shadow:0 0 6px var(--c);transition:width 1s,background .8s;}
+.bif{flex:1;}#bl{font-size:8px;color:var(--td);letter-spacing:2px;}
+#bv{font-family:'Orbitron',monospace;font-size:14px;color:var(--c);transition:color .5s;}
+
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:280px;}
+.sc{background:var(--panel);border:1px solid var(--pb);border-radius:8px;padding:10px;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--c),var(--o));}
+.sl{font-size:8px;color:var(--td);letter-spacing:2px;}.sv{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--c);text-shadow:0 0 8px var(--c);}.su{font-size:8px;color:var(--o);}
+
+/* ARMOR */
+.ah{font-family:'Orbitron',monospace;font-size:13px;font-weight:700;letter-spacing:4px;color:var(--o);text-shadow:0 0 12px var(--o);margin:12px 0 8px;align-self:flex-start;}
+.sbw{width:100%;max-width:280px;margin-bottom:12px;}
+.sb{width:100%;height:3px;background:rgba(0,245,255,.1);border-radius:2px;overflow:hidden;}
+.sbf{height:100%;background:linear-gradient(90deg,transparent,var(--c),var(--o),var(--c),transparent);width:40%;animation:sm 2s linear infinite;}
+@keyframes sm{0%{transform:translateX(-250%)}100%{transform:translateX(400%)}}
+.adw{width:100%;max-width:280px;background:var(--panel);border:1px solid var(--pb);border-radius:8px;padding:12px;height:90px;overflow:hidden;margin-bottom:8px;}
+.ads{animation:ds 12s linear infinite;font-size:10px;line-height:2;color:var(--cd);}
+@keyframes ds{0%{transform:translateY(0)}100%{transform:translateY(-50%)}}
+.adl.ok{color:#00ff88;}.adl.wn{color:var(--o);}.adl.hi{color:var(--c);font-weight:bold;}
+.acs{display:flex;gap:12px;width:100%;max-width:280px;}
+.ac2{flex:1;aspect-ratio:1;border-radius:50%;border:2px solid var(--pb);display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--panel);position:relative;overflow:hidden;}
+.ac2::after{content:'';position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(0,245,255,.15),transparent);}
+.ac2.pw::after{height:85%;}.ac2.sh::after{height:72%;}.ac2.th::after{height:91%;}
+.cv{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--c);text-shadow:0 0 8px var(--c);z-index:1;}
+.cl{font-size:7px;letter-spacing:1px;color:var(--td);z-index:1;}
+
+/* V3 */
+.bt{font-family:'Orbitron',monospace;font-size:12px;font-weight:900;letter-spacing:5px;color:var(--c);text-shadow:0 0 15px var(--c);margin:12px 0 4px;align-self:flex-start;}
+.bs{font-size:9px;letter-spacing:3px;color:var(--o);align-self:flex-start;margin-bottom:12px;}
+.bsw{width:100%;max-width:280px;background:rgba(0,10,30,.9);border:1px solid rgba(0,245,255,.2);border-radius:8px;padding:12px;margin-bottom:12px;position:relative;overflow:hidden;}
+.bsw::before{content:'WEB SHOOTER V3 // BLUEPRINT';position:absolute;top:8px;left:12px;font-size:8px;letter-spacing:2px;color:rgba(0,245,255,.3);}
+#bpc{position:absolute;bottom:8px;right:12px;font-size:7px;letter-spacing:1px;color:rgba(255,107,0,.3);}
+.bsvg{width:100%;margin-top:14px;}
+.pg{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:280px;}
+.pc{background:var(--panel);border:1px solid var(--pb);border-radius:8px;padding:10px;position:relative;overflow:hidden;}
+.pc::after{content:'';position:absolute;bottom:0;left:0;height:2px;background:linear-gradient(90deg,var(--o),transparent);width:var(--f,0%);transition:width 2s;}
+.pl{font-size:7px;letter-spacing:2px;color:var(--td);}.pv{font-family:'Orbitron',monospace;font-size:16px;color:var(--o);text-shadow:0 0 8px var(--o);}.pu{font-size:8px;color:var(--td);}
+
+/* SNAKE */
+.snk-t{font-family:'Orbitron',monospace;font-size:11px;font-weight:900;letter-spacing:4px;color:var(--c);text-shadow:0 0 12px var(--c);margin:10px 0 2px;}
+.snk-s{font-size:8px;letter-spacing:2px;color:var(--o);margin-bottom:10px;}
+.snk-card{width:100%;max-width:280px;background:var(--panel);border:1px solid var(--pb);border-radius:10px;padding:14px;text-align:center;margin-bottom:10px;}
+.snk-btn{padding:10px;background:rgba(0,245,255,.08);border:1px solid var(--c);border-radius:8px;color:var(--c);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;cursor:pointer;transition:all .2s;width:100%;}
+.snk-btn:hover{background:rgba(0,245,255,.15);}
+.snk-btn.o{border-color:var(--o);color:var(--o);background:rgba(255,107,0,.08);}
+#snk-canvas{border:1px solid rgba(0,245,255,.3);border-radius:8px;background:#020a14;display:block;margin:0 auto;box-shadow:0 0 12px rgba(0,245,255,.1);}
+.dpad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;width:120px;margin:10px auto 0;}
+.dpad-btn{padding:10px;background:rgba(0,245,255,.08);border:1px solid rgba(0,245,255,.25);border-radius:6px;color:var(--c);font-size:15px;cursor:pointer;text-align:center;}
+
+/* BOTTOM NAV */
+#bn{display:flex;border-top:1px solid var(--pb);background:rgba(0,5,15,.95);flex-shrink:0;z-index:100;}
+.nb{flex:1;padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:transparent;color:var(--td);font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;transition:all .3s;position:relative;}
+.nb::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--c);transform:scaleX(0);transition:transform .3s;}
+.nb.act{color:var(--c);text-shadow:0 0 8px var(--c);}.nb.act::before{transform:scaleX(1);}
+.ni{font-size:16px;}
+/* CAMERA */
+#cam-modal .modal-box{border:1.5px solid var(--c);max-height:95vh;}
+.cam-hdr{padding:10px 14px;border-bottom:1px solid var(--pb);background:rgba(0,245,255,.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.cam-title{font-family:'Orbitron',monospace;font-size:11px;font-weight:900;letter-spacing:3px;color:var(--c);}
+#cam-view-wrap{position:relative;width:100%;flex:1;background:#000;overflow:hidden;min-height:260px;max-height:55vh;}
+#cam-video{width:100%;height:100%;min-height:260px;object-fit:cover;display:block;}
+#cam-hud{position:absolute;inset:0;pointer-events:none;}
+#cam-hud::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,245,255,.03) 3px,rgba(0,245,255,.03) 4px);}
+.cam-corner{position:absolute;width:20px;height:20px;border-color:var(--c);border-style:solid;opacity:.8;}
+.cam-corner.tl{top:12px;left:12px;border-width:2px 0 0 2px;}
+.cam-corner.tr{top:12px;right:12px;border-width:2px 2px 0 0;}
+.cam-corner.bl{bottom:12px;left:12px;border-width:0 0 2px 2px;}
+.cam-corner.br{bottom:12px;right:12px;border-width:0 2px 2px 0;}
+.cam-scan{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--c),transparent);animation:cam-scan-move 2s linear infinite;opacity:.6;}
+@keyframes cam-scan-move{0%{top:0}100%{top:100%}}
+#cam-label{position:absolute;top:14px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:8px;letter-spacing:3px;color:var(--c);text-shadow:0 0 8px var(--c);}
+#cam-crosshair{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;}
+#cam-crosshair::before,#cam-crosshair::after{content:'';position:absolute;background:var(--c);opacity:.5;}
+#cam-crosshair::before{width:100%;height:1px;top:50%;left:0;}
+#cam-crosshair::after{width:1px;height:100%;left:50%;top:0;}
+.cam-controls{padding:10px 14px;display:flex;gap:8px;align-items:center;flex-shrink:0;background:rgba(0,5,15,.95);}
+#cam-caption{flex:1;background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.25);border-radius:8px;padding:8px 10px;color:var(--c);font-family:'Share Tech Mono',monospace;font-size:11px;outline:none;}
+#cam-caption::placeholder{color:var(--td);}
+#cam-shoot{width:48px;height:48px;border-radius:50%;border:2px solid var(--c);background:rgba(0,245,255,.1);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px var(--cg);transition:all .2s;flex-shrink:0;}
+#cam-shoot:hover{background:rgba(0,245,255,.25);box-shadow:0 0 20px var(--cg);}
+#cam-shoot.flash{background:white;box-shadow:0 0 40px white;}
+#cam-flip{padding:8px 12px;background:rgba(0,245,255,.07);border:1px solid rgba(0,245,255,.25);border-radius:8px;color:var(--c);font-size:14px;cursor:pointer;flex-shrink:0;}
+#cam-canvas{display:none;}
+#cam-preview{display:none;width:100%;object-fit:cover;}
+#cam-preview-bar{padding:8px 14px;display:none;gap:8px;flex-shrink:0;}
+#cam-post-btn{flex:1;padding:9px;background:rgba(0,245,255,.1);border:1px solid var(--c);border-radius:8px;color:var(--c);font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;}
+#cam-retake-btn{padding:9px 14px;background:rgba(255,68,0,.08);border:1px solid #ff4400;border-radius:8px;color:#ff4400;font-family:'Orbitron',monospace;font-size:9px;cursor:pointer;}
+/* VIDEO CALL */
+#vcall-overlay{position:fixed;inset:0;z-index:11000;background:#000;display:none;flex-direction:column;}
+#vcall-overlay.vis{display:flex;}
+#vcall-remote{width:100%;flex:1;object-fit:cover;background:#050810;}
+#vcall-local{position:absolute;bottom:90px;right:12px;width:100px;height:140px;object-fit:cover;border:2px solid var(--c);border-radius:10px;box-shadow:0 0 12px var(--cg);z-index:2;}
+#vcall-hud{position:absolute;inset:0;pointer-events:none;z-index:1;}
+#vcall-hud::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,245,255,.02) 3px,rgba(0,245,255,.02) 4px);}
+.vcall-corner{position:absolute;width:24px;height:24px;border-color:var(--c);border-style:solid;opacity:.7;}
+.vcall-corner.tl{top:14px;left:14px;border-width:2px 0 0 2px;}
+.vcall-corner.tr{top:14px;right:14px;border-width:2px 2px 0 0;}
+.vcall-corner.bl{bottom:80px;left:14px;border-width:0 0 2px 2px;}
+.vcall-corner.br{bottom:80px;right:14px;border-width:0 2px 2px 0;}
+#vcall-status{position:absolute;top:16px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:10px;letter-spacing:3px;color:var(--c);text-shadow:0 0 8px var(--c);background:rgba(0,0,0,.5);padding:4px 12px;border-radius:20px;border:1px solid rgba(0,245,255,.3);}
+#vcall-timer{position:absolute;top:40px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:14px;font-weight:700;letter-spacing:4px;color:var(--c);text-shadow:0 0 10px var(--c);}
+#vcall-name{position:absolute;bottom:85px;left:50%;transform:translateX(-50%);font-family:'Orbitron',monospace;font-size:11px;letter-spacing:3px;color:#fff;background:rgba(0,0,0,.6);padding:4px 12px;border-radius:20px;}
+#vcall-controls{position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(0deg,rgba(0,0,0,.95),transparent);display:flex;align-items:center;justify-content:center;gap:20px;z-index:3;}
+.vcall-btn{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px;border:none;transition:all .2s;}
+.vcall-btn.end{background:#ff2244;box-shadow:0 0 16px rgba(255,34,68,.5);}
+.vcall-btn.mute{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);}
+.vcall-btn.cam{background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.3);}
+.vcall-btn.mute.active,.vcall-btn.cam.active{background:rgba(255,68,0,.3);border-color:var(--o);}
+
+/* INCOMING CALL */
+#vcall-incoming{position:fixed;bottom:80px;left:20px;right:20px;z-index:10500;background:rgba(2,8,24,.97);border:1.5px solid var(--c);border-radius:16px;padding:18px 20px;display:none;box-shadow:0 0 30px rgba(0,245,255,.2);}
+#vcall-incoming.vis{display:block;animation:ring-in .5s ease;}
+@keyframes ring-in{0%{transform:translateY(20px);opacity:0}100%{transform:translateY(0);opacity:1}}
+.inc-caller{font-family:'Orbitron',monospace;font-size:14px;font-weight:900;color:var(--c);text-shadow:0 0 10px var(--c);margin-bottom:4px;}
+.inc-sub{font-size:9px;letter-spacing:2px;color:var(--td);margin-bottom:14px;}
+.inc-btns{display:flex;gap:10px;}
+.inc-ans{flex:1;padding:12px;background:rgba(0,255,68,.12);border:1.5px solid #00ff44;border-radius:10px;color:#00ff44;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;}
+.inc-dec{flex:1;padding:12px;background:rgba(255,34,68,.12);border:1.5px solid #ff2244;border-radius:10px;color:#ff2244;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;cursor:pointer;}
+
+/* ══ ARMOR CAM ══ */
+#armor-cam-modal{position:fixed;inset:0;z-index:8500;background:#000;display:none;flex-direction:column;}
+#armor-cam-modal.vis{display:flex;}
+#armor-video{width:100%;flex:1;object-fit:cover;display:block;}
+#armor-overlay{position:absolute;inset:0;pointer-events:none;}
+
+/* Scanlines */
+#armor-overlay::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,245,255,.025) 3px,rgba(0,245,255,.025) 4px);z-index:1;}
+
+/* HUD frame corners */
+.armor-corner{position:absolute;width:30px;height:30px;border-color:var(--c);border-style:solid;opacity:.9;z-index:2;}
+.armor-corner.tl{top:12px;left:12px;border-width:2px 0 0 2px;}
+.armor-corner.tr{top:12px;right:12px;border-width:2px 2px 0 0;}
+.armor-corner.bl{bottom:80px;left:12px;border-width:0 0 2px 2px;}
+.armor-corner.br{bottom:80px;right:12px;border-width:0 2px 2px 0;}
+
+/* Arc Reactor chest overlay */
+#chest-reactor{
+  position:absolute;
+  left:50%;top:45%;
+  transform:translate(-50%,-50%);
+  z-index:3;
+  opacity:0;
+  transition:opacity .5s;
+}
+#chest-reactor.vis{opacity:1;}
+#chest-reactor svg{filter:drop-shadow(0 0 8px #00f5ff) drop-shadow(0 0 20px #00f5ff);}
+
+/* Armor suit overlay - appears on suit-up */
+#suit-overlay{
+  position:absolute;inset:0;z-index:4;
+  pointer-events:none;
+  opacity:0;
+}
+
+/* Suit panels - top/bottom/sides sweep in */
+.suit-panel{position:absolute;background:linear-gradient(135deg,rgba(180,100,0,.85),rgba(255,140,0,.7),rgba(180,80,0,.85));border:1px solid rgba(255,140,0,.5);transition:all .4s ease-out;}
+.suit-panel.top{top:-100%;left:0;right:0;height:35%;border-bottom:2px solid rgba(255,180,0,.8);}
+.suit-panel.bottom{bottom:-100%;left:0;right:0;height:35%;border-top:2px solid rgba(255,180,0,.8);}
+.suit-panel.left{left:-100%;top:0;bottom:0;width:28%;border-right:2px solid rgba(255,180,0,.8);}
+.suit-panel.right{right:-100%;top:0;bottom:0;width:28%;border-left:2px solid rgba(255,180,0,.8);}
+
+/* Suit panel lines decoration */
+.suit-panel::after{content:'';position:absolute;inset:4px;border:1px solid rgba(255,200,0,.3);background:repeating-linear-gradient(45deg,transparent,transparent 8px,rgba(255,140,0,.05) 8px,rgba(255,140,0,.05) 9px);}
+
+/* When suited up */
+#suit-overlay.suited .suit-panel.top{top:0;}
+#suit-overlay.suited .suit-panel.bottom{bottom:0;}
+#suit-overlay.suited .suit-panel.left{left:0;}
+#suit-overlay.suited .suit-panel.right{right:0;}
+#suit-overlay.suited{opacity:1;}
+
+/* Mask overlay */
+#mask-overlay{
+  position:absolute;inset:0;z-index:5;pointer-events:none;
+  opacity:0;transition:opacity .6s;
+}
+#mask-overlay.vis{opacity:1;}
+#mask-overlay::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(255,100,0,.15) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 70%,rgba(255,80,0,.1) 100%);
+}
+/* Mask HUD lines */
+#mask-hud-lines{position:absolute;inset:0;}
+
+/* Status bar */
+#armor-status{
+  position:absolute;top:14px;left:50%;transform:translateX(-50%);
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:3px;
+  color:var(--c);text-shadow:0 0 8px var(--c);
+  background:rgba(0,0,0,.5);padding:4px 14px;border-radius:20px;
+  border:1px solid rgba(0,245,255,.3);z-index:6;
+}
+#armor-mark{
+  position:absolute;top:36px;left:50%;transform:translateX(-50%);
+  font-family:'Orbitron',monospace;font-size:14px;font-weight:900;letter-spacing:4px;
+  color:var(--o);text-shadow:0 0 12px var(--o);z-index:6;
+}
+
+/* Bottom controls */
+#armor-controls{
+  position:absolute;bottom:0;left:0;right:0;height:75px;
+  background:linear-gradient(0deg,rgba(0,0,0,.95),transparent);
+  display:flex;align-items:center;justify-content:space-around;z-index:7;
+}
+.armor-ctrl-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  cursor:pointer;padding:6px 10px;border-radius:8px;
+  border:1px solid rgba(0,245,255,.25);background:rgba(0,245,255,.06);
+  transition:all .2s;
+}
+.armor-ctrl-btn:hover{background:rgba(0,245,255,.15);}
+.armor-ctrl-btn span{font-size:16px;}
+.armor-ctrl-btn small{font-family:'Orbitron',monospace;font-size:7px;letter-spacing:1px;color:var(--td);}
+.armor-ctrl-btn.active{border-color:var(--o);background:rgba(255,107,0,.15);}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--cd);border-radius:2px;}
+
+/* ARMOR GALLERY */
+.ag-title{font-family:'Orbitron',monospace;font-size:10px;font-weight:900;letter-spacing:3px;color:var(--c);text-shadow:0 0 10px var(--c);margin:14px 0 10px;align-self:flex-start;border-left:3px solid var(--c);padding-left:8px;}
+.ag-grid{display:flex;flex-direction:column;gap:7px;width:100%;max-width:280px;margin-bottom:14px;}
+.ag-btn{background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.25);border-radius:8px;padding:11px 14px;cursor:pointer;text-align:left;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;transition:all .25s;position:relative;overflow:hidden;}
+.ag-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.ag-btn:hover{transform:translateX(3px);box-shadow:0 0 12px rgba(0,245,255,.2);}
+.ag-selected{box-shadow:0 0 16px rgba(0,245,255,.3);transform:translateX(4px);}
+.ag-info{width:100%;max-width:280px;background:var(--panel);border:1px solid var(--pb);border-radius:10px;padding:14px;margin-bottom:8px;}
+.ag-mark-num{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;letter-spacing:3px;margin-bottom:6px;transition:color .3s;}
+.ag-mark-desc{font-size:10px;color:var(--td);letter-spacing:1px;line-height:1.6;}
+.ag-mark-status{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.ag-stat{font-size:8px;padding:3px 8px;border-radius:10px;letter-spacing:1px;border:1px solid;}
+.ag-bar-wrap{margin-top:10px;}
+.ag-bar-label{font-size:8px;color:var(--td);letter-spacing:2px;margin-bottom:4px;}
+.ag-bar{height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-bottom:6px;}
+.ag-bar-fill{height:100%;border-radius:2px;transition:width .8s ease;}
+
+/* ══ MODALS BASE ══ */
+.modal-base{position:fixed;inset:0;z-index:7000;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;backdrop-filter:blur(5px);}
+.modal-base.vis{display:flex;}
+.modal-box{width:calc(100% - 24px);max-width:360px;max-height:88vh;background:rgba(2,8,24,.98);border-radius:16px;display:flex;flex-direction:column;overflow:hidden;}
+
+/* CHAT */
+#chat-modal .modal-box{border:1.5px solid var(--c);box-shadow:0 0 30px rgba(0,245,255,.15);}
+.chat-hdr{padding:12px 16px;border-bottom:1px solid var(--pb);background:rgba(0,245,255,.05);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.chat-title{font-family:'Orbitron',monospace;font-size:11px;font-weight:900;letter-spacing:3px;color:var(--c);}
+.chat-close{cursor:pointer;color:#ff4444;font-size:11px;padding:4px 8px;border:1px solid #ff444455;border-radius:6px;}
+#chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;}
+.chat-input-row{padding:10px 12px;border-top:1px solid var(--pb);display:flex;gap:8px;flex-shrink:0;}
+#chat-inp{flex:1;background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.3);border-radius:8px;padding:10px 12px;color:var(--c);font-family:'Share Tech Mono',monospace;font-size:12px;outline:none;}
+.chat-send{padding:10px 14px;background:rgba(0,245,255,.1);border:1px solid var(--c);border-radius:8px;color:var(--c);font-size:16px;cursor:pointer;}
+
+/* JARVIS-GRAM */
+#jg-modal .modal-box{border:1.5px solid #00d4ff;box-shadow:0 0 30px rgba(0,212,255,.2);max-height:85vh;}
+.jg-hdr{padding:12px 16px;border-bottom:1px solid rgba(0,212,255,.3);background:rgba(0,212,255,.07);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.jg-title{font-family:'Orbitron',monospace;font-size:11px;font-weight:900;letter-spacing:3px;color:#00d4ff;}
+.jg-close{cursor:pointer;color:#ff4444;font-size:11px;padding:4px 8px;border:1px solid #ff444455;border-radius:6px;}
+.jg-compose{padding:10px 12px;border-bottom:1px solid rgba(0,212,255,.15);flex-shrink:0;}
+#jg-ta{width:100%;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.25);color:var(--tp);padding:8px 10px;border-radius:8px;outline:none;resize:none;font-family:'Share Tech Mono',monospace;font-size:12px;line-height:1.5;min-height:55px;}
+#jg-ta::placeholder{color:rgba(180,230,240,.3);}
+#jg-send{width:100%;margin-top:7px;background:rgba(0,212,255,.1);border:1px solid #00d4ff;color:#00d4ff;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:3px;padding:9px;border-radius:8px;cursor:pointer;}
+#jg-feed{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:8px;}
+.jg-post{border:1px solid rgba(0,212,255,.2);padding:10px 12px;border-radius:10px;background:rgba(0,212,255,.04);}
+.jg-uname{font-size:9px;color:#00d4ff;letter-spacing:2px;margin-bottom:5px;font-family:'Orbitron',monospace;}
+.jg-uname.e{color:#ff2255;}
+.jg-txt{font-size:12px;color:var(--tp);font-family:'Share Tech Mono',monospace;line-height:1.6;word-break:break-word;}
+.jg-meta{margin-top:7px;display:flex;align-items:center;gap:10px;font-size:9px;color:var(--td);}
+.jg-lbtn{cursor:pointer;padding:2px 8px;border:1px solid rgba(0,212,255,.2);border-radius:10px;color:rgba(0,212,255,.6);transition:all .2s;}
+.jg-lbtn.liked{border-color:#00d4ff;color:#00d4ff;background:rgba(0,212,255,.1);}
+.jg-empty{text-align:center;color:var(--td);font-size:10px;margin-top:20px;letter-spacing:2px;}
+
+/* PASSWORD LOCK */
+#lock-modal{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.96);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+#lock-modal.vis{display:flex;}
+#lock-box{width:calc(100% - 40px);max-width:300px;background:rgba(2,8,24,.98);border:1px solid var(--c);border-radius:16px;padding:24px 20px;text-align:center;box-shadow:0 0 40px rgba(0,245,255,.15);}
+.lock-user-row{display:flex;gap:8px;margin-bottom:12px;}
+.lock-u{flex:1;padding:10px;border-radius:8px;cursor:pointer;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;transition:all .2s;}
+.lock-u.y{background:rgba(255,107,0,.1);border:2px solid var(--o);color:var(--o);}
+.lock-u.e{background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.3);color:var(--c);}
+.lock-u.active-y{border:2px solid var(--o);background:rgba(255,107,0,.2);}
+.lock-u.active-e{border:2px solid var(--c);background:rgba(0,245,255,.15);}
+.lock-inp{width:100%;background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.3);border-radius:8px;padding:12px;color:var(--c);font-family:'Share Tech Mono',monospace;font-size:16px;letter-spacing:4px;outline:none;text-align:center;margin-bottom:8px;}
+.lock-err{font-size:9px;color:#ff4444;letter-spacing:1px;min-height:16px;margin-bottom:8px;}
+.lock-btn{width:100%;padding:12px;background:rgba(0,245,255,.1);border:1px solid var(--c);border-radius:8px;color:var(--c);font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:3px;cursor:pointer;}
+.lock-link{margin-top:10px;font-size:9px;color:var(--td);cursor:pointer;text-decoration:underline;}
+
+/* PASSWORD SETUP */
+#setup-modal{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.96);display:none;align-items:center;justify-content:center;backdrop-filter:blur(8px);}
+#setup-modal.vis{display:flex;}
+#setup-box{width:calc(100% - 40px);max-width:300px;background:rgba(2,8,24,.98);border:1px solid var(--o);border-radius:16px;padding:24px 20px;text-align:center;}
+.setup-user-row{display:flex;gap:8px;margin-bottom:12px;}
+.setup-u{flex:1;padding:8px;border-radius:8px;cursor:pointer;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;border:1px solid;}
+.setup-u.y{border-color:var(--o);color:var(--o);background:rgba(255,107,0,.05);}
+.setup-u.e{border-color:rgba(0,245,255,.3);color:var(--c);background:rgba(0,245,255,.03);}
+.setup-u.sel-y{background:rgba(255,107,0,.2);border-width:2px;}
+.setup-u.sel-e{background:rgba(0,245,255,.12);border-color:var(--c);border-width:2px;}
+.setup-inp{width:100%;background:rgba(0,245,255,.05);border:1px solid rgba(0,245,255,.3);border-radius:8px;padding:11px;color:var(--c);font-family:'Share Tech Mono',monospace;font-size:14px;letter-spacing:3px;outline:none;text-align:center;margin-bottom:8px;}
+.setup-err{font-size:9px;min-height:16px;letter-spacing:1px;margin-bottom:8px;}
+.setup-btn{width:100%;padding:11px;background:rgba(255,107,0,.1);border:1px solid var(--o);border-radius:8px;color:var(--o);font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:3px;cursor:pointer;margin-bottom:8px;}
+.setup-back{font-size:9px;color:var(--td);cursor:pointer;}
+
+/* SETUP GUIDE */
+#sg-modal .modal-box{border:1px solid var(--c);max-height:90vh;}
+.sg-hdr{padding:14px 18px 10px;border-bottom:1px solid var(--pb);flex-shrink:0;}
+.sg-title{font-family:'Orbitron',monospace;font-size:12px;font-weight:900;letter-spacing:4px;color:var(--c);text-shadow:0 0 12px var(--c);}
+.sg-sub{font-size:9px;letter-spacing:2px;color:var(--o);margin-top:3px;}
+.sg-body{flex:1;overflow-y:auto;padding:14px 18px;}
+.sg-step{display:flex;gap:12px;margin-bottom:14px;}
+.sg-num{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--c);display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:var(--c);flex-shrink:0;box-shadow:0 0 8px var(--cg);}
+.sg-info{flex:1;}
+.sg-h{font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:var(--c);letter-spacing:1px;margin-bottom:4px;}
+.sg-p{font-size:10px;line-height:1.75;color:var(--td);}
+.sg-p b{color:var(--o);}
+.sg-code{display:inline-block;background:rgba(0,245,255,.08);border:1px solid rgba(0,245,255,.25);border-radius:4px;padding:1px 7px;font-size:10px;color:var(--c);}
+.sg-hr{height:1px;background:linear-gradient(90deg,transparent,rgba(0,245,255,.3),transparent);margin:12px 0;}
+.sg-close-btn{width:100%;margin-top:8px;padding:11px;background:rgba(0,245,255,.07);border:1px solid var(--c);border-radius:8px;color:var(--c);font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:3px;cursor:pointer;}
+.sg-note{font-size:9px;color:var(--td);line-height:1.65;margin-top:12px;padding:10px 12px;background:rgba(255,107,0,.05);border:1px solid rgba(255,107,0,.18);border-radius:8px;}
+
+/* ══ ARC REACTOR INTRO ══ */
+#arc-intro{
+  position:fixed;inset:0;z-index:99999;
+  background:#000;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+#arc-intro.done{display:none;}
+
+#arc-intro-svg{
+  width:320px;height:320px;
+  animation:arc-zoom-in 3.2s ease-in forwards;
+}
+@keyframes arc-zoom-in{
+  0%  {transform:scale(0.4);opacity:0;}
+  15% {opacity:1;}
+  60% {transform:scale(1.2);opacity:1;}
+  85% {transform:scale(4);opacity:1;}
+  100%{transform:scale(12);opacity:0;}
+}
+
+#arc-intro-glow{
+  position:absolute;
+  width:320px;height:320px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(0,245,255,0) 0%,rgba(0,245,255,0) 40%,rgba(0,245,255,.05) 70%,rgba(0,245,255,.15) 100%);
+  animation:arc-glow-pulse 3.2s ease-in forwards;
+}
+@keyframes arc-glow-pulse{
+  0%  {transform:scale(0.4);opacity:0;}
+  20% {opacity:1;}
+  70% {transform:scale(4);opacity:0.8;background:radial-gradient(circle,rgba(255,255,255,0.9) 0%,rgba(0,245,255,0.6) 40%,rgba(0,245,255,.1) 70%,transparent 100%);}
+  100%{transform:scale(14);opacity:0;}
+}
+
+#arc-intro-flash{
+  position:absolute;inset:0;
+  background:white;
+  opacity:0;
+  animation:arc-flash 3.2s ease-in forwards;
+}
+@keyframes arc-flash{
+  0%,70%{opacity:0;}
+  88%{opacity:0.85;}
+  100%{opacity:0;}
+}
+
+#arc-intro-rings{
+  position:absolute;
+  width:320px;height:320px;
+  animation:arc-zoom-in 3.2s ease-in forwards;
+}
+
+.intro-ring{
+  position:absolute;border-radius:50%;border:1px solid rgba(0,245,255,0.4);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  animation:ring-pulse 1.5s ease-in-out infinite;
+}
+@keyframes ring-pulse{0%,100%{opacity:0.3}50%{opacity:0.7}}
+</style>
+</head>
+<body>
+
+<!-- ARC REACTOR INTRO -->
+<div id="arc-intro">
+  <div id="arc-intro-glow"></div>
+  <div id="arc-intro-rings">
+    <div class="intro-ring" style="width:280px;height:280px;animation-delay:0s;"></div>
+    <div class="intro-ring" style="width:230px;height:230px;animation-delay:.15s;border-color:rgba(0,245,255,0.5);"></div>
+    <div class="intro-ring" style="width:185px;height:185px;animation-delay:.25s;"></div>
+    <div class="intro-ring" style="width:145px;height:145px;animation-delay:.35s;border-color:rgba(0,245,255,0.6);"></div>
+    <div class="intro-ring" style="width:110px;height:110px;animation-delay:.45s;"></div>
+    <div class="intro-ring" style="width:80px;height:80px;animation-delay:.55s;border-color:rgba(255,255,255,0.7);"></div>
+  </div>
+  <svg id="arc-intro-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="coreGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+        <stop offset="30%" stop-color="#00f5ff" stop-opacity="0.9"/>
+        <stop offset="70%" stop-color="#0066aa" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#001122" stop-opacity="0.3"/>
+      </radialGradient>
+      <filter id="glow-intro">
+        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+        <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <!-- Outer dark ring -->
+    <circle cx="100" cy="100" r="96" fill="#0a0e1a" stroke="#1a2a3a" stroke-width="2"/>
+    <!-- Segment ring -->
+    <circle cx="100" cy="100" r="82" fill="none" stroke="rgba(0,245,255,0.15)" stroke-width="18"/>
+    <!-- 12 glowing segments -->
+    <g filter="url(#glow-intro)">
+      <!-- Each segment is a thick arc piece -->
+      <path d="M100,18 A82,82 0 0,1 141,27" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M141,27 A82,82 0 0,1 173,59" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M173,59 A82,82 0 0,1 182,100" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M182,100 A82,82 0 0,1 173,141" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M173,141 A82,82 0 0,1 141,173" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M141,173 A82,82 0 0,1 100,182" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M100,182 A82,82 0 0,1 59,173" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M59,173 A82,82 0 0,1 27,141" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M27,141 A82,82 0 0,1 18,100" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M18,100 A82,82 0 0,1 27,59" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M27,59 A82,82 0 0,1 59,27" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+      <path d="M59,27 A82,82 0 0,1 100,18" fill="none" stroke="#00d4ff" stroke-width="16" stroke-linecap="round"/>
+    </g>
+    <!-- Inner ring -->
+    <circle cx="100" cy="100" r="56" fill="#050810" stroke="rgba(0,245,255,0.5)" stroke-width="2" filter="url(#glow-intro)"/>
+    <!-- Inner small segments -->
+    <circle cx="100" cy="100" r="46" fill="none" stroke="rgba(0,245,255,0.3)" stroke-width="8" stroke-dasharray="12 6"/>
+    <!-- Core -->
+    <circle cx="100" cy="100" r="28" fill="url(#coreGrad)" filter="url(#glow-intro)"/>
+    <circle cx="100" cy="100" r="16" fill="white" opacity="0.95" filter="url(#glow-intro)"/>
+  </svg>
+  <div id="arc-intro-flash"></div>
+</div>
+
+<div id="go"></div>
+
+<!-- USER BUTTON -->
+<div id="upb" onclick="toggleDD()">
+  <div id="upb-av">Y</div>
+  <div id="upb-nm">YUNUS</div>
+  <span class="upb-ca">▾</span>
+</div>
+<div id="upd">
+  <div class="udh">// KULLANICI SEÇ</div>
+  <div class="udu sel" id="upd-yunus" onclick="selUser('yunus')">
+    <div class="udav y">Y</div>
+    <div class="udi"><div class="udn y">YUNUS</div><div class="udr">ANA KULLANICI · PROTOKOL-A</div></div>
+    <div class="udc">✔</div>
+  </div>
+  <div class="udu" id="upd-emir" onclick="selUser('emir')">
+    <div class="udav e">E</div>
+    <div class="udi"><div class="udn e">EMİR</div><div class="udr">MİSAFİR KULLANICI · PROTOKOL-B</div></div>
+    <div class="udc">✔</div>
+  </div>
+  <div class="udu" id="upd-omer" onclick="selUser('omer')">
+    <div class="udav" style="border-color:#00cc66;color:#00cc66;background:rgba(0,200,100,.1);">Ö</div>
+    <div class="udi"><div class="udn" style="color:#00cc66;">ÖMER</div><div class="udr">KULLANICI · PROTOKOL-C</div></div>
+    <div class="udc">✔</div>
+  </div>
+</div>
+
+<!-- PASSWORD LOCK -->
+<div id="lock-modal">
+  <div id="lock-box">
+    <div style="font-size:28px;margin-bottom:8px;">🔒</div>
+    <div style="font-family:'Orbitron',monospace;font-size:12px;font-weight:900;letter-spacing:4px;color:var(--c);margin-bottom:4px;">JARVIS GÜVENLİK</div>
+    <div style="font-size:9px;letter-spacing:2px;color:var(--o);margin-bottom:16px;">// KULLANICI DOĞRULAMASI //</div>
+    <div class="lock-user-row" style="flex-wrap:wrap;">
+      <div class="lock-u y active-y" id="lu-yunus" onclick="lockPick('yunus')">YUNUS</div>
+      <div class="lock-u e" id="lu-emir" onclick="lockPick('emir')">EMİR</div>
+      <div class="lock-u" id="lu-omer" onclick="lockPick('omer')" style="background:rgba(0,200,100,.1);border:1px solid rgba(0,200,100,.3);color:#00cc66;flex:1;min-width:80px;">ÖMER</div>
+    </div>
+    <input class="lock-inp" id="lock-inp" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')lockGo()">
+    <div class="lock-err" id="lock-err"></div>
+    <button class="lock-btn" onclick="lockGo()">GİRİŞ YAP</button>
+    <div class="lock-link" onclick="showSetup()">İlk kez mi? Parola belirle →</div>
+  </div>
+</div>
+
+<!-- PASSWORD SETUP -->
+<div id="setup-modal">
+  <div id="setup-box">
+    <div style="font-size:24px;margin-bottom:8px;">🔑</div>
+    <div style="font-family:'Orbitron',monospace;font-size:11px;font-weight:900;letter-spacing:3px;color:var(--o);margin-bottom:14px;">PAROLA BELIRLE</div>
+    <div class="setup-user-row" style="flex-wrap:wrap;gap:6px;">
+      <div class="setup-u y sel-y" id="su-yunus" onclick="setupPick('yunus')">YUNUS</div>
+      <div class="setup-u e" id="su-emir" onclick="setupPick('emir')">EMİR</div>
+      <div class="setup-u" id="su-omer" onclick="setupPick('omer')" style="border-color:rgba(0,200,100,.3);color:#00cc66;flex:1;">ÖMER</div>
+    </div>
+    <input class="setup-inp" id="su-p1" type="password" placeholder="Yeni parola">
+    <input class="setup-inp" id="su-p2" type="password" placeholder="Tekrar girin">
+    <div class="setup-err" id="su-err"></div>
+    <button class="setup-btn" onclick="setupSave()">KAYDET</button>
+    <div class="setup-back" onclick="hideSetup()">← Geri</div>
+  </div>
+</div>
+
+<!-- INCOMING CALL NOTIFICATION -->
+<div id="vcall-incoming">
+  <div class="inc-caller" id="inc-caller-name">YUNUS</div>
+  <div class="inc-sub">// GÖRÜNTÜlü ARAMA //</div>
+  <div class="inc-btns">
+    <button class="inc-ans" onclick="vcallAnswer()">📞 CEVAPLA</button>
+    <button class="inc-dec" onclick="vcallDecline()">✕ REDDET</button>
+  </div>
+</div>
+
+<!-- VIDEO CALL OVERLAY -->
+<div id="vcall-overlay">
+  <video id="vcall-remote" autoplay playsinline></video>
+  <video id="vcall-local" autoplay playsinline muted></video>
+  <div id="vcall-hud">
+    <div class="vcall-corner tl"></div>
+    <div class="vcall-corner tr"></div>
+    <div class="vcall-corner bl"></div>
+    <div class="vcall-corner br"></div>
+  </div>
+  <div id="vcall-status">BAĞLANIYOR...</div>
+  <div id="vcall-timer" style="display:none;">00:00</div>
+  <div id="vcall-name"></div>
+  <div id="vcall-controls">
+    <div class="vcall-btn mute" id="vcall-mute-btn" onclick="vcallToggleMute()">🎤</div>
+    <div class="vcall-btn end" onclick="vcallEnd()">📵</div>
+    <div class="vcall-btn cam" id="vcall-cam-btn" onclick="vcallToggleCam()">📷</div>
+  </div>
+</div>
+
+<!-- ARMOR CAM MODAL -->
+<div id="armor-cam-modal">
+  <video id="armor-video" autoplay playsinline muted></video>
+
+  <div id="armor-overlay">
+    <div class="armor-corner tl"></div>
+    <div class="armor-corner tr"></div>
+    <div class="armor-corner bl"></div>
+    <div class="armor-corner br"></div>
+
+    <!-- Arc Reactor chest -->
+    <div id="chest-reactor">
+      <svg width="90" height="90" viewBox="0 0 100 100">
+        <defs>
+          <radialGradient id="rcg" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#fff" stop-opacity="1"/>
+            <stop offset="30%" stop-color="#00f5ff" stop-opacity=".9"/>
+            <stop offset="80%" stop-color="#003060" stop-opacity=".6"/>
+            <stop offset="100%" stop-color="#000" stop-opacity=".2"/>
+          </radialGradient>
+        </defs>
+        <circle cx="50" cy="50" r="48" fill="#050810" stroke="#1a2a3a" stroke-width="2"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="rgba(0,245,255,.2)" stroke-width="10"/>
+        <path d="M50,10 A40,40 0 0,1 84,30" fill="none" stroke="#00d4ff" stroke-width="9" stroke-linecap="round"/>
+        <path d="M84,30 A40,40 0 0,1 90,50" fill="none" stroke="#00d4ff" stroke-width="9" stroke-linecap="round"/>
+        <path d="M90,50 A40,40 0 0,1 84,70" fill="none" stroke="#00d4ff" stroke-width="9" stroke-linecap="round"/>
+        <path d="M84,70 A40,40 0 0,1 50,90" fill="none" stroke="#00d4ff" stroke-width="9" stroke-linecap="round"/>
+        <path d="M50,90 A40,40 0 0,1 16,70" fill="none" stroke="#00d4ff" stroke-width="9" stroke-linecap="round"/>
+        <path d="M16,70 A40,40 0 0,1 10,50" fill="none" stroke="#00d4ff" stroke-width="9" stroke-linecap="round"/>
+        <path d="M10,50 A40,40 0 0,1 16,30" fill="none" stroke="#00d4ff" stroke-width="9" stroke-linecap="round"/>
+        <path d="M16,30 A40,40 0 0,1 50,10" fill="none" stroke="#00d4ff" stroke-width="9" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="22" fill="#050810" stroke="rgba(0,245,255,.6)" stroke-width="1.5"/>
+        <circle cx="50" cy="50" r="14" fill="url(#rcg)"/>
+        <circle cx="50" cy="50" r="7" fill="white" opacity=".95"/>
+        <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite"/>
+      </svg>
+    </div>
+
+    <!-- Suit panels -->
+    <div id="suit-overlay">
+      <div class="suit-panel top"></div>
+      <div class="suit-panel bottom"></div>
+      <div class="suit-panel left"></div>
+      <div class="suit-panel right"></div>
+    </div>
+
+    <!-- Mask overlay -->
+    <div id="mask-overlay">
+      <div id="mask-hud-lines">
+        <svg width="100%" height="100%" style="position:absolute;inset:0;">
+          <line x1="0" y1="50%" x2="100%" y2="50%" stroke="rgba(255,100,0,.15)" stroke-width="1"/>
+          <line x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(255,100,0,.15)" stroke-width="1"/>
+          <circle cx="50%" cy="50%" r="60" fill="none" stroke="rgba(255,100,0,.2)" stroke-width="1" stroke-dasharray="8,4"/>
+          <circle cx="50%" cy="50%" r="100" fill="none" stroke="rgba(255,100,0,.1)" stroke-width="1"/>
+          <text x="10" y="30" font-family="Orbitron,monospace" font-size="9" fill="rgba(255,150,0,.7)" letter-spacing="2">MASK ON</text>
+          <text x="10" y="46" font-family="Orbitron,monospace" font-size="8" fill="rgba(255,100,0,.5)" letter-spacing="1">TARGETING...</text>
+        </svg>
+      </div>
+    </div>
+
+    <div id="armor-status">JARVIS AR MODU</div>
+    <div id="armor-mark">MARK 50</div>
+
+    <div id="armor-controls">
+      <div class="armor-ctrl-btn" onclick="toggleSuit()"><span>🛡</span><small id="suit-btn-lbl">KIRP GİY</small></div>
+      <div class="armor-ctrl-btn" onclick="toggleMask()"><span>😷</span><small id="mask-btn-lbl">MASK AÇ</small></div>
+      <div class="armor-ctrl-btn" onclick="armorNextMark()"><span>⚡</span><small id="armor-mark-lbl">MARK 50</small></div>
+      <div class="armor-ctrl-btn" onclick="closeArmorCam()"><span>✕</span><small>KAPAT</small></div>
+    </div>
+  </div>
+</div>
+
+<!-- CAMERA MODAL -->
+<div id="cam-modal" class="modal-base" onclick="modalOverlay(event,'cam-modal')">
+  <div class="modal-box" style="max-width:400px;">
+    <div class="cam-hdr">
+      <div class="cam-title">📷 JARVIS CAM</div>
+      <div style="cursor:pointer;color:#ff4444;font-size:11px;padding:4px 8px;border:1px solid #ff444455;border-radius:6px;" onclick="closeCam()">✕</div>
+    </div>
+    <div id="cam-view-wrap">
+      <video id="cam-video" autoplay playsinline muted></video>
+      <img id="cam-preview">
+      <div id="cam-hud">
+        <div class="cam-corner tl"></div>
+        <div class="cam-corner tr"></div>
+        <div class="cam-corner bl"></div>
+        <div class="cam-corner br"></div>
+        <div class="cam-scan"></div>
+        <div id="cam-label">JARVIS CAM v1.0</div>
+        <div id="cam-crosshair"></div>
+      </div>
+    </div>
+    <canvas id="cam-canvas"></canvas>
+    <div class="cam-controls">
+      <button id="cam-flip" onclick="camFlip()">🔄</button>
+      <input id="cam-caption" type="text" placeholder="Açıklama ekle..." maxlength="150">
+      <button id="cam-shoot" onclick="camShoot()">📷</button>
+    </div>
+    <div id="cam-preview-bar">
+      <button id="cam-retake-btn" onclick="camRetake()">↩ YENİDEN</button>
+      <button id="cam-post-btn" onclick="camPost()">▶ GRAM'A PAYLAŞ</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT MODAL -->
+<div id="chat-modal" class="modal-base" onclick="modalOverlay(event,'chat-modal')">
+  <div class="modal-box">
+    <div class="chat-hdr">
+      <div class="chat-title">💬 JARVIS CHAT</div>
+      <div class="chat-close" onclick="closeModal('chat-modal')">✕</div>
+    </div>
+    <div id="chat-msgs"></div>
+    <div class="chat-input-row">
+      <input id="chat-inp" class="" type="text" placeholder="Mesaj yaz..." maxlength="200" onkeydown="if(event.key==='Enter')chatSend()">
+      <button class="chat-send" onclick="chatSend()">➤</button>
+    </div>
+  </div>
+</div>
+
+<!-- JARVIS-GRAM -->
+<div id="jg-modal" class="modal-base" onclick="modalOverlay(event,'jg-modal')">
+  <div class="modal-box">
+    <div class="jg-hdr">
+      <div class="jg-title">📸 JARVIS-GRAM</div>
+      <div class="jg-close" onclick="closeModal('jg-modal')">✕ KAPAT</div>
+    </div>
+    <div class="jg-compose">
+      <textarea id="jg-ta" placeholder="Bir şeyler paylaş, Efendim..." rows="3" maxlength="300"></textarea>
+      <button id="jg-send" onclick="jgSend()">▶ PAYLAŞ</button>
+    </div>
+    <div id="jg-feed"><div class="jg-empty" id="jg-empty">// YÜKLENİYOR...</div></div>
+  </div>
+</div>
+
+<!-- SETUP GUIDE -->
+<div id="sg-modal" class="modal-base" onclick="modalOverlay(event,'sg-modal')">
+  <div class="modal-box">
+    <div class="sg-hdr">
+      <div class="sg-title">⚙ KURULUM REHBERİ</div>
+      <div class="sg-sub">// JARVIS AÇILIŞ KOMUTU — ANDROID //</div>
+    </div>
+    <div class="sg-body">
+      <div class="sg-step"><div class="sg-num">1</div><div class="sg-info"><div class="sg-h">DOSYAYI ANA EKRANA EKLE</div><div class="sg-p">Chrome ile aç → <b>⋮ → Ana Ekrana Ekle</b> → Jarvis uygulama gibi görünür.</div></div></div>
+      <div class="sg-hr"></div>
+      <div class="sg-step"><div class="sg-num">2</div><div class="sg-info"><div class="sg-h">GOOGLE ASİSTAN RUTINI</div><div class="sg-p">Google Asistan → <b>Profil → Ayarlar → Rutinler → +</b></div></div></div>
+      <div class="sg-hr"></div>
+      <div class="sg-step"><div class="sg-num">3</div><div class="sg-info"><div class="sg-h">KOMUTU YAZ</div><div class="sg-p"><b>"Şu durumlarda"</b> → Sesli Komut → <span class="sg-code">Jarvis açıl</span></div></div></div>
+      <div class="sg-hr"></div>
+      <div class="sg-step"><div class="sg-num">4</div><div class="sg-info"><div class="sg-h">UYGULAMAYI SEÇ</div><div class="sg-p"><b>"Şunu yap"</b> → Uygulama Aç → <b>Jarvis</b> kısayolunu seç → Kaydet</div></div></div>
+      <div class="sg-hr"></div>
+      <div class="sg-step"><div class="sg-num">5</div><div class="sg-info"><div class="sg-h">TEST ET ✅</div><div class="sg-p">Ekran kapalıyken <b>"Hey Google, Jarvis açıl"</b> de.</div></div></div>
+      <div class="sg-note">⚠ "Hey Google" her zaman aktif olduğu için ekran kapalıyken de çalışır.</div>
+      <button class="sg-close-btn" onclick="closeModal('sg-modal')">// TAMAM, ANLADIM //</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div id="hdr">
+    <div class="hlogo">J.A.R.V.I.S.</div>
+    <div id="hu">// YUNUS //</div>
+    <div class="hst"><div class="sdot"></div><span>ONLINE</span></div>
+  </div>
+  <div id="wi"><div id="mb" onclick="toggleMic()">🎙</div></div>
+  <div id="mic-label">● DİNLİYOR</div>
+  <div id="sp"></div>
+
+  <div id="ld">
+    <div class="di act" id="d-dashboard" onclick="setMode('dashboard')">⚡<div class="dtt">POWER CORE</div></div>
+    <div class="di" id="d-armor" onclick="setMode('armor')">🛡<div class="dtt">ARMOR SYS</div></div>
+    <div class="di" id="d-v3" onclick="setMode('v3')">🕸<div class="dtt">WEB V3</div></div>
+    <div class="di" id="d-snake" onclick="setMode('snake')">🐍<div class="dtt">SNAKE</div></div>
+    <div class="di" onclick="openModal('chat-modal')" style="border-color:rgba(0,255,136,.3);font-size:13px;">💬<div class="dtt">CHAT</div></div>
+    <div class="di" onclick="openModal('jg-modal')" style="border-color:rgba(0,212,255,.4);font-size:13px;">📸<div class="dtt">GRAM</div></div>
+    <div class="di" onclick="openCam()" style="border-color:rgba(0,245,255,.5);font-size:13px;">📷<div class="dtt">KAMERA</div></div>
+    <div class="di" onclick="openArmorCam()" style="border-color:rgba(255,107,0,.6);font-size:13px;">🛡<div class="dtt">ZIRH CAM</div></div>
+    <div class="di" onclick="vcallCall()" style="border-color:rgba(0,255,68,.4);font-size:13px;">📞<div class="dtt">VİDEO ARA</div></div>
+    <div class="di" onclick="openModal('sg-modal')" style="border-color:rgba(255,107,0,.4);font-size:13px;">📋<div class="dtt">KURULUM</div></div>
+  </div>
+
+  <div id="main">
+    <!-- DASHBOARD -->
+    <div class="mp act" id="p-dashboard">
+      <div class="arw" id="reactor">
+        <div class="rwp" id="rwp"></div>
+        <div class="ar ar1" id="ar1"></div>
+        <div class="ar ar2"></div><div class="ar ar3"></div>
+        <div id="atk"></div>
+        <div id="ac"><div class="ahx"></div></div>
+      </div>
+      <div id="clk">00:00:00</div>
+      <div id="dl">YÜKLENİYOR...</div>
+      <div class="bw">
+        <div class="bi"><div id="bf" style="width:75%"></div></div>
+        <div class="bif"><div id="bl">ARC REAKTÖR ŞARJI</div><div id="bv">75%</div></div>
+      </div>
+      <div class="sg">
+        <div class="sc"><div class="sl">CORE TEMP</div><div class="sv" id="st">42<span class="su">°C</span></div></div>
+        <div class="sc"><div class="sl">OUTPUT</div><div class="sv" id="so">3.2<span class="su">GW</span></div></div>
+        <div class="sc"><div class="sl">UPTIME</div><div class="sv">99<span class="su">%</span></div></div>
+        <div class="sc"><div class="sl">SIGNAL</div><div class="sv">100<span class="su">%</span></div></div>
+      </div>
+    </div>
+
+    <!-- ARMOR -->
+    <div class="mp" id="p-armor">
+      <div class="ah">⬡ ARMOR DIAGNOSTICS</div>
+      <div class="sbw"><div style="font-size:8px;color:var(--td);letter-spacing:2px;margin-bottom:4px;">FULL BODY SCAN</div><div class="sb"><div class="sbf"></div></div></div>
+      <div class="adw"><div class="ads" id="ads"></div></div>
+      <div class="acs">
+        <div class="ac2 pw"><div class="cv">85%</div><div class="cl">POWER</div></div>
+        <div class="ac2 sh"><div class="cv">72%</div><div class="cl">SHIELD</div></div>
+        <div class="ac2 th"><div class="cv">91%</div><div class="cl">THRUST</div></div>
+      </div>
+
+      <!-- ARMOR GALLERY -->
+      <div class="ag-title">⬡ ARMOR DATABASE</div>
+      <div class="ag-info">
+        <div class="ag-mark-num" id="ag-num" style="color:var(--c);">MARK SEÇİMİ BEKLENİYOR</div>
+        <div class="ag-mark-desc" id="ag-desc">Sistem taraması aktif — bir zırh seçin, Efendim.</div>
+        <div class="ag-bar-wrap" id="ag-bars" style="display:none;">
+          <div class="ag-bar-label">GÜÇ</div>
+          <div class="ag-bar"><div class="ag-bar-fill" id="ag-bar-power" style="width:0%;background:#00d4ff;"></div></div>
+          <div class="ag-bar-label">KORUMA</div>
+          <div class="ag-bar"><div class="ag-bar-fill" id="ag-bar-shield" style="width:0%;background:#ff6b00;"></div></div>
+          <div class="ag-bar-label">HIZ</div>
+          <div class="ag-bar"><div class="ag-bar-fill" id="ag-bar-speed" style="width:0%;background:#00ff88;"></div></div>
+        </div>
+        <div class="ag-mark-status" id="ag-stats"></div>
+      </div>
+      <div class="ag-grid">
+        <button class="ag-btn" id="ag-m5" onclick="selectMark(5,'Hafif Saha Zırhi - Canta Modu','#ff3333',70,50,90)">▶ MARK 5 <span style="font-size:8px;opacity:.6;float:right;">HAFİF SAHA</span></button>
+        <button class="ag-btn" id="ag-m42" onclick="selectMark(42,'Otonom Takip Sistemi - Uzaktan Kontrol','#ffcc00',85,75,80)">▶ MARK 42 <span style="font-size:8px;opacity:.6;float:right;">OTONOM</span></button>
+        <button class="ag-btn" id="ag-m50" onclick="selectMark(50,'Nanoteknoloji - Sivi Metal Sistemi','#00d4ff',95,90,85)">▶ MARK 50 <span style="font-size:8px;opacity:.6;float:right;">NANO</span></button>
+        <button class="ag-btn" id="ag-m85" onclick="selectMark(85,'Final Nano Zirh - Maksimum Guc','#ff0000',100,100,95)">▶ MARK 85 <span style="font-size:8px;opacity:.6;float:right;">FİNAL</span></button>
+      </div>
+    </div>
+
+    <!-- V3 -->
+    <div class="mp" id="p-v3">
+      <div class="bt">WEB SHOOTER V3</div>
+      <div class="bs">// PROTOTYPE BLUEPRINT //</div>
+      <div class="bsw">
+        <div id="bpc">CONFIDENTIAL // YUNUS</div>
+        <svg class="bsvg" viewBox="0 0 260 140" fill="none">
+          <defs><pattern id="g" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0L0 0 0 20" fill="none" stroke="rgba(0,245,255,.08)" stroke-width=".5"/></pattern></defs>
+          <rect width="260" height="140" fill="url(#g)"/>
+          <rect x="80" y="30" width="100" height="55" rx="8" stroke="rgba(0,245,255,.6)" stroke-width="1.5" fill="rgba(0,245,255,.03)"/>
+          <rect x="30" y="50" width="52" height="20" rx="5" stroke="rgba(0,245,255,.4)" stroke-width="1" fill="rgba(0,245,255,.02)"/>
+          <rect x="178" y="50" width="52" height="20" rx="5" stroke="rgba(0,245,255,.4)" stroke-width="1" fill="rgba(0,245,255,.02)"/>
+          <ellipse cx="130" cy="57.5" rx="14" ry="14" stroke="rgba(255,107,0,.8)" stroke-width="1.5" fill="rgba(255,107,0,.05)"/>
+          <ellipse cx="130" cy="57.5" rx="7" ry="7" stroke="rgba(255,107,0,.6)" stroke-width="1" fill="rgba(255,107,0,.1)"/>
+          <circle cx="130" cy="57.5" r="2" fill="rgba(255,107,0,.9)"/>
+          <line x1="82" y1="57.5" x2="116" y2="57.5" stroke="rgba(0,245,255,.4)" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="144" y1="57.5" x2="178" y2="57.5" stroke="rgba(0,245,255,.4)" stroke-width="1" stroke-dasharray="3,2"/>
+          <text x="130" y="18" font-family="monospace" font-size="6" fill="rgba(0,245,255,.5)" text-anchor="middle">100.0mm</text>
+          <line x1="0" y1="0" x2="260" y2="0" stroke="rgba(0,245,255,.3)" stroke-width="1"><animate attributeName="y1" values="0;140;0" dur="3s" repeatCount="indefinite"/><animate attributeName="y2" values="0;140;0" dur="3s" repeatCount="indefinite"/></line>
+        </svg>
+      </div>
+      <div class="pg">
+        <div class="pc" style="--f:87%"><div class="pl">CHAMBER PSI</div><div class="pv">87.3<span class="pu"> psi</span></div></div>
+        <div class="pc" style="--f:62%"><div class="pl">WEB TENSION</div><div class="pv">62.1<span class="pu"> N</span></div></div>
+        <div class="pc" style="--f:94%"><div class="pl">FLUID RESERVE</div><div class="pv">94<span class="pu"> %</span></div></div>
+        <div class="pc" style="--f:73%"><div class="pl">FIRE RATE</div><div class="pv">4.8<span class="pu"> /s</span></div></div>
+      </div>
+    </div>
+
+    <!-- SNAKE -->
+    <div class="mp" id="p-snake">
+      <div class="snk-t">🐍 SNAKE ONLINE</div>
+      <div class="snk-s">// 2 OYUNCU — FİREBASE //</div>
+      <div id="snk-lobby" style="width:100%;max-width:280px;">
+        <div class="snk-card"><div id="snk-status" style="font-size:9px;color:var(--td);letter-spacing:1px;margin-bottom:10px;">BAĞLANTI BEKLENİYOR</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button class="snk-btn" onclick="snakeHost()">ODA KUR</button>
+            <button class="snk-btn o" onclick="snakeJoin()">ODA GİR</button>
+          </div>
+          <div id="snk-room-info" style="margin-top:10px;font-size:10px;color:var(--td);text-align:center;min-height:18px;"></div>
+        </div>
+      </div>
+      <div id="snk-arena" style="display:none;width:100%;max-width:280px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <div style="font-size:9px;color:var(--td);">SEN: <span id="my-sc" style="color:var(--c);font-family:'Orbitron',monospace;">0</span></div>
+          <div id="snk-lbl" style="font-size:9px;color:var(--o);letter-spacing:1px;">HAZIR</div>
+          <div style="font-size:9px;color:var(--td);">RAKİP: <span id="op-sc" style="color:var(--o);font-family:'Orbitron',monospace;">0</span></div>
+        </div>
+        <canvas id="snk-canvas" width="280" height="280"></canvas>
+        <div class="dpad" style="grid-template-rows:auto auto;">
+          <div></div><div class="dpad-btn" onclick="snkDir('U')">▲</div><div></div>
+          <div class="dpad-btn" onclick="snkDir('L')">◄</div>
+          <div class="dpad-btn" onclick="snkDir('D')">▼</div>
+          <div class="dpad-btn" onclick="snkDir('R')">►</div>
+        </div>
+        <button class="snk-btn" style="margin-top:10px;border-color:#ff4400;color:#ff4400;" onclick="snakeLeave()">OYUNDAN ÇIKIŞ</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="bn">
+    <button class="nb act" id="n-dashboard" onclick="setMode('dashboard')"><span class="ni">⚡</span><span>DASH</span></button>
+    <button class="nb" id="n-armor" onclick="setMode('armor')"><span class="ni">🛡</span><span>ARMOR</span></button>
+    <button class="nb" id="n-v3" onclick="setMode('v3')"><span class="ni">🕸</span><span>V3</span></button>
+    <button class="nb" id="n-snake" onclick="setMode('snake')"><span class="ni">🐍</span><span>SNAKE</span></button>
+  </div>
+</div>
+
+<script>
+/* ════ STATE ════ */
+var mode='dashboard', isOn=false, rec=null, stOut=null, auOk=false;
+var bVal=75, lwWarn=false, lwStrob=false;
+var user='yunus';
+var db=null;
+
+/* ════ PROFILES ════ */
+var PR={
+  yunus:{n:'YUNUS',i:'Y',gr:'Hos geldiniz, Yunus.',wr:'Sizi dinliyorum Yunus, buyurun Efendim.',
+    recStart:'Dinliyorum Yunus, buyurun.',recStop:'Kayıt durduruldu Yunus.',
+    mg:{dashboard:'Ana panele dönüldü, Yunus.',armor:'Zırh analizine geçiliyor, Yunus.',v3:'Web atıcı V3, Yunus.',snake:'Yılan oyunu, Yunus.'},
+    sm:'Sistem durumu optimal, Yunus.',sec:'Güvenlik aktif, Yunus.',
+    core:'radial-gradient(circle,#ffa040 0%,#ff6b00 30%,#0033aa 65%,transparent 100%)',
+    glow:'0 0 28px #ff8800,0 0 55px rgba(255,107,0,.5),inset 0 0 24px rgba(255,120,0,.35)',
+    ring:'#ff7700',avB:'#ff7700',avC:'#ff9900',avBg:'rgba(255,107,0,.15)',hC:'#ff9900',hG:'#ff7700',bB:'rgba(255,119,0,.5)'},
+  emir:{n:'EMİR',i:'E',gr:'Hos geldiniz, Emir.',wr:'Sizi dinliyorum Emir, emirlerinizi bekliyorum.',
+    recStart:'Dinliyorum Emir, buyurun.',recStop:'Kayıt durduruldu Emir.',
+    mg:{dashboard:'Ana panel aktif, Emir.',armor:'Zırh analizi, Emir.',v3:'Web atıcı V3, Emir.',snake:'Yılan oyunu, Emir.'},
+    sm:'Sistem durumu optimal, Emir.',sec:'Güvenlik aktif, Emir.',
+    core:'radial-gradient(circle,#ff2244 0%,#990011 30%,#000d33 65%,transparent 100%)',
+    glow:'0 0 28px #cc0022,0 0 55px rgba(200,0,30,.5),inset 0 0 24px rgba(180,0,30,.35)',
+    ring:'#cc0033',avB:'#cc0033',avC:'#ff2255',avBg:'rgba(200,0,50,.15)',hC:'#ff2255',hG:'#cc0033',bB:'rgba(200,0,50,.5)'},
+  omer:{n:'ÖMER',i:'Ö',gr:'Hos geldiniz, Omer.',wr:'Sizi dinliyorum Omer, buyurun.',
+    recStart:'Dinliyorum Omer, buyurun.',recStop:'Kayit durduruldu Omer.',
+    mg:{dashboard:'Ana panel aktif, Omer.',armor:'Zirh analizi, Omer.',v3:'Web atici V3, Omer.',snake:'Yilan oyunu, Omer.'},
+    sm:'Sistem durumu optimal, Omer.',sec:'Guvenlik aktif, Omer.',
+    core:'radial-gradient(circle,#00ff88 0%,#00aa55 30%,#003322 65%,transparent 100%)',
+    glow:'0 0 28px #00cc66,0 0 55px rgba(0,200,100,.5),inset 0 0 24px rgba(0,180,80,.35)',
+    ring:'#00aa55',avB:'#00aa55',avC:'#00cc66',avBg:'rgba(0,200,100,.15)',hC:'#00cc66',hG:'#00aa55',bB:'rgba(0,180,80,.5)'}
+};
+var MS={dashboard:'',armor:'',v3:'',snake:''};
+
+/* ════ TICKS ════ */
+(function(){var w=document.getElementById('atk');for(var i=0;i<24;i++){var t=document.createElement('div');t.className='atk';var a=(i/24)*360,r=a*Math.PI/180,R=87;t.style.cssText='left:'+(90+R*Math.sin(r)-1)+'px;top:'+(90-R*Math.cos(r))+'px;transform:rotate('+a+'deg);transform-origin:center bottom;';t.style.opacity=i%6===0?'0.9':'0.3';t.style.height=i%6===0?'10px':'6px';w.appendChild(t);}})();
+
+/* ════ ARMOR DATA ════ */
+(function(){var L=[{t:'// SUIT DIAGNOSTICS: OPTIMAL',c:'hi'},{t:'POWER CORE.......... [OK]',c:'ok'},{t:'REPULSOR LEFT....... [OK]',c:'ok'},{t:'REPULSOR RIGHT...... [OK]',c:'ok'},{t:'HELMET DISPLAY...... [OK]',c:'ok'},{t:'THERMAL SHIELD...... [WARM]',c:'wn'},{t:'HUD OVERLAY......... [OK]',c:'ok'},{t:'JARVIS LINK......... [ACTIVE]',c:'hi'},{t:'THRUSTER L.......... [OK]',c:'ok'},{t:'OXYGEN SUPPLY....... [97%]',c:'ok'},{t:'NANO REPAIR......... [STANDBY]',c:''},{t:'// RE-RUNNING SCAN...',c:'hi'},{t:'POWER CORE.......... [OK]',c:'ok'},{t:'THERMAL SHIELD...... [WARM]',c:'wn'},{t:'JARVIS LINK......... [ACTIVE]',c:'hi'}];document.getElementById('ads').innerHTML=L.map(function(l){return '<div class="adl '+l.c+'">'+l.t+'</div>';}).join('');})();
+
+/* ════ CLOCK ════ */
+function updClock(){var n=new Date();var h=('0'+n.getHours()).slice(-2),m=('0'+n.getMinutes()).slice(-2),s=('0'+n.getSeconds()).slice(-2);document.getElementById('clk').textContent=h+':'+m+':'+s;var D=['Pazar','Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi'];var M=['OCA','ŞUB','MAR','NİS','MAY','HAZ','TEM','AĞU','EYL','EKİ','KAS','ARA'];document.getElementById('dl').textContent=D[n.getDay()].toUpperCase()+' '+n.getDate()+' '+M[n.getMonth()]+' '+n.getFullYear();}
+setInterval(updClock,1000);updClock();
+
+/* ════ LIVE STATS ════ */
+setInterval(function(){var te=document.getElementById('st'),oe=document.getElementById('so');if(te)te.innerHTML=(40+Math.round(Math.random()*6))+'<span class="su">°C</span>';if(oe)oe.innerHTML=(3.0+Math.random()*.5).toFixed(1)+'<span class="su">GW</span>';},3000);
+
+/* ════ APPLY USER ════ */
+function applyUser(uid,announce){
+  user=uid;
+  try{localStorage.setItem('j_u',uid);}catch(e){}
+  var p=PR[uid];
+  var av=document.getElementById('upb-av'),nm=document.getElementById('upb-nm'),btn=document.getElementById('upb');
+  if(av){av.textContent=p.i;av.style.cssText='width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;font-family:Orbitron,monospace;border:1.5px solid '+p.avB+';color:'+p.avC+';background:'+p.avBg+';transition:all .3s;';}
+  if(nm){nm.style.cssText='font-family:Orbitron,monospace;font-size:9px;font-weight:700;letter-spacing:2px;color:'+p.avC+';transition:all .3s;';nm.textContent=p.n;}
+  if(btn)btn.style.borderColor=p.bB;
+  var hu=document.getElementById('hu');if(hu){hu.textContent='// '+p.n+' //';hu.style.color=p.hC;hu.style.textShadow='0 0 8px '+p.hG;}
+  document.title='J.A.R.V.I.S. — '+p.n;
+  var bpc=document.getElementById('bpc');if(bpc)bpc.textContent='CONFIDENTIAL // '+p.n;
+  if(bVal>=20){var core=document.getElementById('ac'),r1=document.getElementById('ar1');if(core){core.style.background=p.core;core.style.boxShadow=p.glow;}if(r1){r1.style.borderColor=p.ring;r1.style.boxShadow='0 0 14px '+p.ring+',inset 0 0 12px '+p.ring+'22';}}
+  document.querySelectorAll('.udu').forEach(function(el){el.classList.remove('sel');});
+  var sel=document.getElementById('upd-'+uid);if(sel)sel.classList.add('sel');
+  MS.dashboard=p.mg.dashboard;MS.armor=p.mg.armor;MS.v3=p.mg.v3;MS.snake=p.mg.snake;
+  if(announce&&auOk)say(p.gr);
+}
+
+/* ════ DROPDOWN ════ */
+function toggleDD(){var btn=document.getElementById('upb'),dd=document.getElementById('upd');var open=dd.classList.toggle('open');btn.classList.toggle('open',open);if(open)setTimeout(function(){document.addEventListener('click',function c(e){if(!dd.contains(e.target)&&!btn.contains(e.target)){dd.classList.remove('open');btn.classList.remove('open');document.removeEventListener('click',c);}});},50);}
+
+function selUser(uid){
+  document.getElementById('upd').classList.remove('open');
+  document.getElementById('upb').classList.remove('open');
+  if(uid===user)return;
+  var stored=getPass(uid);
+  if(stored){lockPick(uid);showLock();}
+  else{setupPick(uid);showSetup();}
+}
+
+/* ════ PASSWORD SYSTEM ════ */
+function hash(s){var h=0;for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h.toString(36);}
+function getPass(u){try{return localStorage.getItem('jp_'+u)||'';}catch(e){return '';}}
+function setPass(u,h2){try{localStorage.setItem('jp_'+u,h2);}catch(e){}if(db)try{db.ref('jarvis_passwords/'+u).set(h2);}catch(e){}}
+
+var lockUser='yunus';
+function lockPick(u){
+  lockUser=u;
+  document.getElementById('lu-yunus').className='lock-u y'+(u==='yunus'?' active-y':'');
+  document.getElementById('lu-emir').className='lock-u e'+(u==='emir'?' active-e':'');
+  var lo=document.getElementById('lu-omer');
+  if(lo) lo.style.borderWidth=u==='omer'?'2px':'1px';
+  if(lo) lo.style.background=u==='omer'?'rgba(0,200,100,.25)':'rgba(0,200,100,.1)';
+  document.getElementById('lock-inp').value='';
+  document.getElementById('lock-err').textContent='';
+}
+function showLock(){
+  document.getElementById('lock-modal').classList.add('vis');
+  document.getElementById('setup-modal').classList.remove('vis');
+  document.getElementById('lock-inp').value='';
+  document.getElementById('lock-err').textContent='';
+}
+function lockGo(){
+  var pass=document.getElementById('lock-inp').value;
+  var err=document.getElementById('lock-err');
+  if(!pass){err.textContent='Parola boş olamaz!';return;}
+  var stored=getPass(lockUser);
+  if(!stored){err.textContent='Parola belirlenmemiş! Aşağıdan belirle.';return;}
+  if(hash(pass)!==stored){err.textContent='Hatalı parola!';document.getElementById('lock-inp').value='';return;}
+  document.getElementById('lock-modal').classList.remove('vis');
+  playJarvisSound();
+  setTimeout(function(){ say('Hos geldiniz, '+PR[lockUser].n+'.'); applyUser(lockUser,false); },800);
+}
+
+var setupUser='yunus';
+function setupPick(u){
+  setupUser=u;
+  document.getElementById('su-yunus').className='setup-u y'+(u==='yunus'?' sel-y':'');
+  document.getElementById('su-emir').className='setup-u e'+(u==='emir'?' sel-e':'');
+  var so=document.getElementById('su-omer');
+  if(so){ so.style.borderWidth=u==='omer'?'2px':'1px'; so.style.background=u==='omer'?'rgba(0,200,100,.2)':'transparent'; }
+}
+function showSetup(){document.getElementById('setup-modal').classList.add('vis');document.getElementById('lock-modal').classList.remove('vis');}
+function hideSetup(){document.getElementById('setup-modal').classList.remove('vis');document.getElementById('lock-modal').classList.add('vis');}
+function setupSave(){
+  var p1=document.getElementById('su-p1').value;
+  var p2=document.getElementById('su-p2').value;
+  var err=document.getElementById('su-err');
+  if(!p1||p1.length<3){err.style.color='#ff4444';err.textContent='En az 3 karakter!';return;}
+  if(p1!==p2){err.style.color='#ff4444';err.textContent='Parolalar eşleşmiyor!';return;}
+  setPass(setupUser,hash(p1));
+  err.style.color='#00ff88';
+  err.textContent=PR[setupUser].n+' parolası kaydedildi ✅';
+  document.getElementById('su-p1').value='';
+  document.getElementById('su-p2').value='';
+  setTimeout(function(){
+    err.textContent='';
+    document.getElementById('setup-modal').classList.remove('vis');
+    document.getElementById('lock-modal').classList.remove('vis');
+    playJarvisSound();
+    setTimeout(function(){ say('Hos geldiniz, '+PR[setupUser].n+'.'); applyUser(setupUser,false); },800);
+  },1200);
+}
+
+/* ════ INIT LOCK SCREEN ════ */
+function initLockScreen(){
+  var u;try{u=localStorage.getItem('j_u')||'yunus';}catch(e){u='yunus';}
+  applyUser(u,false);
+  var yp=getPass('yunus'),ep=getPass('emir'),op=getPass('omer');
+  if(!yp&&!ep&&!op){setupPick('yunus');document.getElementById('setup-modal').classList.add('vis');}
+  else{lockPick(u);document.getElementById('lock-modal').classList.add('vis');}
+}
+
+/* ════ MODAL HELPERS ════ */
+function openModal(id){document.getElementById(id).classList.add('vis');}
+function closeModal(id){if(id==='cam-modal'){closeCam();return;}var el=document.getElementById(id);if(el)el.classList.remove('vis');}
+function modalOverlay(e,id){if(e.target===document.getElementById(id))closeModal(id);}
+
+/* ════ BATTERY ════ */
+function applyBatt(pct,charging){
+  bVal=Math.round(pct*100);
+  var fill=document.getElementById('bf'),val=document.getElementById('bv'),lbl=document.getElementById('bl');
+  var core=document.getElementById('ac'),r1=document.getElementById('ar1'),p=PR[user];
+  var g=10+(bVal/100)*25;
+  if(fill){fill.style.width=bVal+'%';if(bVal<20){fill.style.background='linear-gradient(90deg,#ff2200,#ff6b00)';fill.style.boxShadow='0 0 8px rgba(255,34,0,.8)';}else if(bVal<40){fill.style.background='linear-gradient(90deg,var(--o),var(--od))';fill.style.boxShadow='0 0 8px var(--og)';}else{fill.style.background='linear-gradient(90deg,var(--c),var(--cd))';fill.style.boxShadow='0 0 6px var(--c)';}}
+  if(val){val.textContent=bVal+'%'+(charging?' ⚡':'');val.style.color=bVal<20?'#ff4400':bVal<40?'var(--o)':'var(--c)';}
+  if(lbl)lbl.textContent=charging?'ŞARJ OLUYOR':'ARC REAKTÖR ŞARJI';
+  if(bVal<20){if(core){core.style.background='radial-gradient(circle,#ff6b00 0%,#cc3300 35%,#1a0000 70%,transparent 100%)';core.style.boxShadow='0 0 '+g+'px #ff4400,inset 0 0 '+g+'px rgba(255,68,0,.3)';}if(r1){r1.style.borderColor='#ff4400';r1.style.boxShadow='0 0 '+g+'px #ff4400';}}
+  else{if(core&&p){core.style.background=p.core;core.style.boxShadow=p.glow;}if(r1&&p){r1.style.borderColor=p.ring;r1.style.boxShadow='0 0 '+g+'px '+p.ring;}}
+  if(bVal<20&&!lwWarn){lwWarn=true;say('⚠ Düşük Enerji %'+bVal+'. '+PR[user].n+', şarj öneriliyor.');if(!lwStrob){lwStrob=true;var r=document.getElementById('reactor');r.classList.add('lb');setTimeout(function(){r.classList.remove('lb');lwStrob=false;},5000);}}
+  if(bVal>=20)lwWarn=false;
+}
+if(navigator.getBattery){navigator.getBattery().then(function(b){applyBatt(b.level,b.charging);b.addEventListener('levelchange',function(){applyBatt(b.level,b.charging);});b.addEventListener('chargingchange',function(){applyBatt(b.level,b.charging);say(b.charging?'Şarj algılandı, '+PR[user].n+'.':'Şarj kesildi, '+PR[user].n+'.');});});}
+else{var sim=.75;applyBatt(sim,false);setInterval(function(){sim=Math.max(.05,Math.min(.99,sim+(Math.random()>.5?.005:-.005)));applyBatt(sim,false);},5000);}
+
+/* ════ SPEECH ════ */
+function speak(t){if(!window.speechSynthesis)return;window.speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(t);u.lang='tr-TR';u.rate=.9;u.pitch=.85;window.speechSynthesis.speak(u);}
+function say(text,s){s=s===undefined?true:s;var el=document.getElementById('sp');el.textContent=text;el.classList.add('vis');if(s&&auOk)speak(text);if(stOut)clearTimeout(stOut);stOut=setTimeout(function(){el.classList.remove('vis');},4500);}
+function playJarvisSound(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    // Sci-fi startup beep sequence
+    var notes=[880,1100,1320,1760];
+    var t=ctx.currentTime;
+    notes.forEach(function(freq,i){
+      var osc=ctx.createOscillator();
+      var gain=ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type='sine';
+      osc.frequency.setValueAtTime(freq,t+i*0.08);
+      gain.gain.setValueAtTime(0,t+i*0.08);
+      gain.gain.linearRampToValueAtTime(0.15,t+i*0.08+0.02);
+      gain.gain.linearRampToValueAtTime(0,t+i*0.08+0.07);
+      osc.start(t+i*0.08);
+      osc.stop(t+i*0.08+0.1);
+    });
+    // Final hum
+    var osc2=ctx.createOscillator();
+    var gain2=ctx.createGain();
+    osc2.connect(gain2); gain2.connect(ctx.destination);
+    osc2.type='sawtooth';
+    osc2.frequency.setValueAtTime(220,t+0.35);
+    osc2.frequency.linearRampToValueAtTime(110,t+0.7);
+    gain2.gain.setValueAtTime(0.08,t+0.35);
+    gain2.gain.linearRampToValueAtTime(0,t+0.7);
+    osc2.start(t+0.35); osc2.stop(t+0.75);
+  }catch(e){}
+}
+
+function unlockAu(){if(auOk)return;auOk=true;if(window.speechSynthesis){var s=new SpeechSynthesisUtterance('');s.volume=0;window.speechSynthesis.speak(s);}try{var c=new(window.AudioContext||window.webkitAudioContext)(),b=c.createBuffer(1,1,22050),s2=c.createBufferSource();s2.buffer=b;s2.connect(c.destination);s2.start(0);c.resume();}catch(e){}playJarvisSound();setTimeout(function(){say(PR[user].gr);},800);}
+document.addEventListener('click',unlockAu,{once:true});
+document.addEventListener('touchstart',unlockAu,{once:true});
+setTimeout(function(){if(!auOk)say('▶ Aktivasyon için ekrana dokunun.',false);},800);
+
+/* ════ GLITCH ════ */
+function glitch(cb){var ov=document.getElementById('go');ov.classList.remove('active');void ov.offsetWidth;ov.classList.add('active');setTimeout(function(){cb();ov.classList.remove('active');},300);}
+
+/* ════ MODE ════ */
+function setMode(m){if(m===mode)return;if(mode==='snake')snkPause();mode=m;glitch(function(){document.querySelectorAll('.mp').forEach(function(p){p.classList.remove('act');});document.getElementById('p-'+m).classList.add('act');document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('act');});var nb=document.getElementById('n-'+m);if(nb)nb.classList.add('act');document.querySelectorAll('.di').forEach(function(d){d.classList.remove('act');});var di=document.getElementById('d-'+m);if(di)di.classList.add('act');});setTimeout(function(){say(MS[m]);},350);}
+
+/* ════ DOCK SPEAK ════ */
+function ds(t){say(t==='sensor'?PR[user].sm:PR[user].sec);}
+
+/* ════ WAKE WORD ════ */
+function wakeReact(){var r=document.getElementById('reactor'),wp=document.getElementById('rwp');r.classList.add('pls');wp.classList.remove('act');void wp.offsetWidth;wp.classList.add('act');setTimeout(function(){r.classList.remove('pls');wp.classList.remove('act');},4500);say(PR[user].wr);}
+function startListening(){var SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){say('Ses tanıma desteklenmiyor.');return;}if(isOn)return;isOn=true;document.getElementById('mb').classList.add('on');say(PR[user].recStart);rec=new SR();rec.lang='tr-TR';rec.continuous=true;rec.interimResults=true;rec.onresult=function(e){for(var i=e.resultIndex;i<e.results.length;i++){var t=e.results[i][0].transcript.toLowerCase().trim();if(t.includes('jarvis')||t.includes('jarviş')){wakeReact();continue;}if(t.includes('bitti')||t.includes('dur')||t.includes('kapat')){stopListening();return;}}};rec.onend=function(){if(isOn)rec.start();};rec.onerror=function(e){if(e.error!=='no-speech'){isOn=false;document.getElementById('mb').classList.remove('on');}};rec.start();}
+function stopListening(){if(!isOn)return;isOn=false;document.getElementById('mb').classList.remove('on');if(rec){rec.onend=null;rec.stop();rec=null;}say(PR[user].recStop);}
+function toggleMic(){if(isOn)stopListening();else startListening();}
+
+/* ════ CHAT ════ */
+var chatRef=null,chatListen=false;
+function chatSend(){var inp=document.getElementById('chat-inp');var txt=inp.value.trim();if(!txt)return;inp.value='';if(!chatRef){alert('İnternet bağlantısı gerekiyor.');return;}chatRef.push({uid:user,name:PR[user].n,text:txt,time:Date.now()});}
+function chatOpen(){if(!chatRef&&db)chatRef=db.ref('jarvis_chat');openModal('chat-modal');if(!chatListen&&chatRef){chatListen=true;chatRef.limitToLast(50).on('child_added',function(snap){renderMsg(snap.val());});}}
+function renderMsg(m){var msgs=document.getElementById('chat-msgs');var isMe=m.uid===user;var d=document.createElement('div');d.style.cssText='display:flex;flex-direction:column;align-items:'+(isMe?'flex-end':'flex-start')+';max-width:80%;align-self:'+(isMe?'flex-end':'flex-start')+';margin-bottom:2px;';var nc=document.createElement('div');nc.style.cssText='font-size:8px;color:'+(m.uid==='emir'?'#ff2255':'#ff9900')+';letter-spacing:1px;margin-bottom:3px;font-family:Orbitron,monospace;';nc.textContent='@'+m.name;var bc=document.createElement('div');bc.style.cssText='background:'+(isMe?'rgba(0,245,255,.12)':'rgba(255,107,0,.1)')+';border:1px solid '+(isMe?'rgba(0,245,255,.3)':'rgba(255,107,0,.3)')+';border-radius:'+(isMe?'12px 12px 2px 12px':'12px 12px 12px 2px')+';padding:8px 12px;font-size:12px;color:var(--tp);line-height:1.5;word-break:break-word;';bc.textContent=m.text;var n=new Date(m.time);var tm=document.createElement('div');tm.style.cssText='font-size:8px;color:var(--td);margin-top:3px;';tm.textContent=('0'+n.getHours()).slice(-2)+':'+('0'+n.getMinutes()).slice(-2);d.appendChild(nc);d.appendChild(bc);d.appendChild(tm);msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;}
+
+/* Override openModal for chat */
+var _openModal=openModal;
+openModal=function(id){if(id==='chat-modal'){chatOpen();}else{_openModal(id);}};
+
+/* ════ JARVIS-GRAM ════ */
+var jgRef=null,jgListen=false;var jgLiked={};
+function jgOpen(){if(!jgRef&&db)jgRef=db.ref('jarvisgram_posts');_openModal('jg-modal');if(!jgListen&&jgRef){jgListen=true;var empty=document.getElementById('jg-empty');if(empty)empty.style.display='block';jgRef.limitToLast(30).on('child_added',function(snap){if(empty)empty.style.display='none';jgRenderPost(snap.key,snap.val());});jgRef.on('child_changed',function(snap){var p=snap.val();var el=document.getElementById('jgl-'+snap.key);if(el)el.textContent='\u2665 '+(p.likes||0);});}}
+openModal=function(id){if(id==='chat-modal')chatOpen();else if(id==='jg-modal')jgOpen();else _openModal(id);};
+function jgSend(){var ta=document.getElementById('jg-ta');var txt=ta.value.trim();if(!txt)return;if(!jgRef){alert('İnternet gerekiyor.');return;}jgRef.push({uid:user,name:PR[user].n,text:txt,time:Date.now(),likes:0});ta.value='';}
+function jgRenderPost(key,p){var feed=document.getElementById('jg-feed');var ex=document.getElementById('jgp-'+key);if(ex)ex.remove();var isMe=p.uid===user;var likeCount=p.likes||0;var liked=jgLiked[key];var d=new Date(p.time);var t=Date.now()-p.time;var ts=t<60000?'AZ ÖNCE':t<3600000?Math.floor(t/60000)+' DAK':t<86400000?Math.floor(t/3600000)+' SAAT':Math.floor(t/86400000)+' GÜN';var post=document.createElement('div');post.className='jg-post';post.id='jgp-'+key;var un=document.createElement('div');un.className='jg-uname'+(p.uid==='emir'?' e':'');un.textContent='@'+p.name+(isMe?' · SEN':'');var tx=document.createElement('div');tx.className='jg-txt';tx.textContent=p.text;var meta=document.createElement('div');meta.className='jg-meta';var tspan=document.createElement('span');tspan.textContent=ts;var lbtn=document.createElement('span');lbtn.className='jg-lbtn'+(liked?' liked':'');lbtn.id='jgl-'+key;lbtn.textContent='\u2665 '+likeCount;(function(k,lc){lbtn.onclick=function(){if(jgLiked[k])return;jgLiked[k]=true;lbtn.classList.add('liked');lbtn.textContent='\u2665 '+(lc+1);if(jgRef)jgRef.child(k+'/likes').transaction(function(v){return(v||0)+1;});};})(key,likeCount);meta.appendChild(tspan);meta.appendChild(lbtn);post.appendChild(un);post.appendChild(tx);post.appendChild(meta);var empty=document.getElementById('jg-empty');if(empty)empty.style.display='none';feed.insertBefore(post,feed.firstChild);}
+
+/* ════ SNAKE ════ */
+var snkDB=null,snkRoom=null,snkHost=false,snkLoop=null,snkPaused=true;
+var mySnk=[],opSnk=[],food={x:7,y:7},myDir='R',nextDir='R',myS=0,opS=0;
+var GRID=20;
+function snakeInit(database){snkDB=database;var el=document.getElementById('snk-status');if(el){el.textContent='BAĞLANDI ✅';el.style.color='#00ff88';}}
+function snakeHost(){if(!snkDB){say('Firebase bağlantısı yok.');return;}snkRoom='R'+Math.random().toString(36).substr(2,5).toUpperCase();snkHost=true;mySnk=[{x:4,y:10},{x:3,y:10},{x:2,y:10}];opSnk=[{x:16,y:10},{x:17,y:10},{x:18,y:10}];food=snkFood();var ref=snkDB.ref('snake/'+snkRoom);ref.set({host:{snake:mySnk,dir:'R',score:0},guest:{snake:opSnk,dir:'L',score:0},food:food,state:'waiting'});document.getElementById('snk-room-info').innerHTML='KOD: <span style="color:var(--c);font-family:Orbitron,monospace;letter-spacing:2px;">'+snkRoom+'</span>';snkListen(ref);}
+function snakeJoin(){if(!snkDB){say('Firebase bağlantısı yok.');return;}var code=prompt('Oda kodunu gir:');if(!code)return;snkRoom=code.trim().toUpperCase();snkHost=false;var ref=snkDB.ref('snake/'+snkRoom);ref.once('value',function(snap){if(!snap.exists()){alert('Oda bulunamadı!');return;}mySnk=[{x:16,y:10},{x:17,y:10},{x:18,y:10}];myDir='L';nextDir='L';ref.child('guest').update({snake:mySnk,dir:'L',score:0});ref.child('state').set('playing');document.getElementById('snk-room-info').innerHTML='<span style="color:#00ff88;">KATILINDI ✅</span>';snkListen(ref);});}
+function snkListen(ref){document.getElementById('snk-lobby').style.display='none';document.getElementById('snk-arena').style.display='block';snkDraw();ref.on('value',function(snap){if(!snap.exists())return;var data=snap.val();food=data.food||food;if(snkHost){opSnk=data.guest&&data.guest.snake?data.guest.snake:opSnk;opS=data.guest&&data.guest.score?data.guest.score:0;if(data.state==='playing'&&snkPaused){snkPaused=false;document.getElementById('snk-lbl').textContent='OYNANIYOR';snkStartLoop(ref);}}else{mySnk=data.guest&&data.guest.snake?data.guest.snake:mySnk;opSnk=data.host&&data.host.snake?data.host.snake:opSnk;opS=data.host&&data.host.score||0;myS=data.guest&&data.guest.score||0;if(data.state==='playing'&&snkPaused){snkPaused=false;document.getElementById('snk-lbl').textContent='OYNANIYOR';}}document.getElementById('my-sc').textContent=myS;document.getElementById('op-sc').textContent=opS;snkDraw();});}
+function snkStartLoop(ref){if(snkLoop)clearInterval(snkLoop);snkLoop=setInterval(function(){if(snkPaused||!snkHost)return;myDir=nextDir;var h={x:(mySnk[0].x+(myDir==='R'?1:myDir==='L'?-1:0)+GRID)%GRID,y:(mySnk[0].y+(myDir==='D'?1:myDir==='U'?-1:0)+GRID)%GRID};mySnk.unshift(h);var ate=h.x===food.x&&h.y===food.y;if(ate){myS++;food=snkFood();}else mySnk.pop();if(mySnk.slice(1).some(function(s){return s.x===h.x&&s.y===h.y;})){snkOver(ref);return;}ref.child('host').update({snake:mySnk,dir:myDir,score:myS});if(ate)ref.child('food').set(food);snkDraw();},150);}
+function snkOver(ref){snkPaused=true;if(snkLoop){clearInterval(snkLoop);snkLoop=null;}document.getElementById('snk-lbl').textContent='GAME OVER 💀';if(ref)ref.child('state').set('gameover');}
+function snkDir(d){var opp={U:'D',D:'U',L:'R',R:'L'};if(d===opp[myDir])return;nextDir=d;if(!snkHost&&snkDB&&snkRoom){myDir=d;var h={x:(mySnk[0].x+(d==='R'?1:d==='L'?-1:0)+GRID)%GRID,y:(mySnk[0].y+(d==='D'?1:d==='U'?-1:0)+GRID)%GRID};mySnk.unshift(h);var ate=h.x===food.x&&h.y===food.y;if(ate)myS++;else mySnk.pop();snkDB.ref('snake/'+snkRoom+'/guest').update({snake:mySnk,dir:d,score:myS});snkDraw();}}
+function snkFood(){return{x:Math.floor(Math.random()*GRID),y:Math.floor(Math.random()*GRID)};}
+function snkPause(){snkPaused=true;if(snkLoop){clearInterval(snkLoop);snkLoop=null;}}
+function snakeLeave(){snkPause();if(snkDB&&snkRoom)snkDB.ref('snake/'+snkRoom).off();snkRoom=null;snkHost=false;myS=0;opS=0;mySnk=[];opSnk=[];document.getElementById('snk-arena').style.display='none';document.getElementById('snk-lobby').style.display='block';document.getElementById('snk-room-info').textContent='';snkDraw();}
+function snkDraw(){var c=document.getElementById('snk-canvas');if(!c)return;var ctx=c.getContext('2d');var W=c.width,H=c.height,cw=W/GRID,ch=H/GRID;ctx.clearRect(0,0,W,H);ctx.strokeStyle='rgba(0,245,255,.04)';ctx.lineWidth=.5;for(var i=0;i<=GRID;i++){ctx.beginPath();ctx.moveTo(i*cw,0);ctx.lineTo(i*cw,H);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*ch);ctx.lineTo(W,i*ch);ctx.stroke();}ctx.fillStyle='#ff6b00';ctx.shadowColor='#ff6b00';ctx.shadowBlur=8;ctx.fillRect(food.x*cw+1,food.y*ch+1,cw-2,ch-2);ctx.shadowBlur=0;mySnk.forEach(function(s,i){ctx.fillStyle=i===0?'#00f5ff':'rgba(0,245,255,.7)';ctx.shadowColor='#00f5ff';ctx.shadowBlur=i===0?10:4;ctx.fillRect(s.x*cw+1,s.y*ch+1,cw-2,ch-2);});opSnk.forEach(function(s,i){ctx.fillStyle=i===0?'#ff6b00':'rgba(255,107,0,.7)';ctx.shadowColor='#ff6b00';ctx.shadowBlur=i===0?10:4;ctx.fillRect(s.x*cw+1,s.y*ch+1,cw-2,ch-2);});ctx.shadowBlur=0;}
+document.addEventListener('keydown',function(e){if(mode!=='snake')return;var m={ArrowUp:'U',ArrowDown:'D',ArrowLeft:'L',ArrowRight:'R'};if(m[e.key]){e.preventDefault();snkDir(m[e.key]);}});
+
+/* ════ ARMOR GALLERY ════ */
+var markData={
+  5: {color:'#ff3333',tags:['HAFİF','KATLANIR','SAHA'],power:70,shield:50,speed:90},
+  42:{color:'#ffcc00',tags:['OTONOM','UZAKTAN','PARÇA'],power:85,shield:75,speed:80},
+  50:{color:'#00d4ff',tags:['NANO','SIVI-METAL','AI'],power:95,shield:90,speed:85},
+  85:{color:'#ff0000',tags:['FİNAL','MAX-GÜÇ','NANO'],power:100,shield:100,speed:95}
+};
+var selMark=null;
+
+function selectMark(num,desc,color,pw,sh,sp){
+  selMark=num;
+  // update info box
+  var numEl=document.getElementById('ag-num');
+  var descEl=document.getElementById('ag-desc');
+  var barsEl=document.getElementById('ag-bars');
+  var statsEl=document.getElementById('ag-stats');
+  if(numEl){numEl.textContent='MARK '+num;numEl.style.color=color;}
+  if(descEl)descEl.textContent=desc;
+  if(barsEl)barsEl.style.display='block';
+  // bars
+  setTimeout(function(){
+    var bp=document.getElementById('ag-bar-power');
+    var bs=document.getElementById('ag-bar-shield');
+    var bsp=document.getElementById('ag-bar-speed');
+    if(bp)bp.style.width=pw+'%';
+    if(bs)bs.style.width=sh+'%';
+    if(bsp)bsp.style.width=sp+'%';
+  },50);
+  // tags
+  if(statsEl&&markData[num]){
+    statsEl.innerHTML='';
+    markData[num].tags.forEach(function(tag){
+      var s=document.createElement('span');
+      s.className='ag-stat';
+      s.style.borderColor=color;
+      s.style.color=color;
+      s.style.background=color.replace('#','rgba(').replace(')',', .08)').replace('rgba(','rgba(').slice(0,color.length+10)+',.08)';
+      // simpler:
+      s.style.background='rgba(0,212,255,.06)';
+      s.style.borderColor=color;s.style.color=color;
+      s.textContent=tag;
+      statsEl.appendChild(s);
+    });
+  }
+  // highlight button
+  [5,42,50,85].forEach(function(n){
+    var b=document.getElementById('ag-m'+n);
+    if(b){b.classList.remove('ag-selected');b.style.borderColor='rgba(0,245,255,.25)';b.style.color='';}
+  });
+  var btn=document.getElementById('ag-m'+num);
+  if(btn){btn.classList.add('ag-selected');btn.style.borderColor=color;btn.style.color=color;btn.style.boxShadow='0 0 14px '+color+'44';}
+  // TTS
+  if(auOk&&window.speechSynthesis){
+    window.speechSynthesis.cancel();
+    var u=new SpeechSynthesisUtterance('Mark '+num+' sistemi aktif, '+PR[user].n+'.');
+    u.lang='tr-TR';u.rate=0.9;u.pitch=0.85;
+    window.speechSynthesis.speak(u);
+  }
+  // show in speech bubble
+  say('Mark '+num+' aktif — '+desc+'.', false);
+}
+
+/* ════ CAMERA ════ */
+var camStream=null, camFacing='environment', camPhotoData=null;
+
+function openCam(){
+  openModal('cam-modal');
+  camStart();
+}
+
+function camStart(){
+  if(camStream){camStream.getTracks().forEach(function(t){t.stop();});}
+  var constraints={video:{facingMode:camFacing,width:{ideal:1280},height:{ideal:720}},audio:false};
+  navigator.mediaDevices.getUserMedia(constraints).then(function(stream){
+    camStream=stream;
+    var vid=document.getElementById('cam-video');
+    vid.srcObject=stream;
+    vid.style.display='block';
+    document.getElementById('cam-preview').style.display='none';
+    document.getElementById('cam-preview-bar').style.display='none';
+    document.querySelector('.cam-controls').style.display='flex';
+    camPhotoData=null;
+  }).catch(function(err){
+    say('Kamera erişimi reddedildi, '+PR[user].n+'.');
+    closeModal('cam-modal');
+  });
+}
+
+function camFlip(){
+  camFacing = camFacing==='environment'?'user':'environment';
+  camStart();
+}
+
+function camShoot(){
+  var vid=document.getElementById('cam-video');
+  var canvas=document.getElementById('cam-canvas');
+
+  // Video hazir degilse bekle
+  if(!vid.srcObject || vid.readyState < 2){
+    vid.addEventListener('canplay', function onReady(){
+      vid.removeEventListener('canplay', onReady);
+      camShoot();
+    });
+    return;
+  }
+
+  var w = vid.videoWidth  || vid.offsetWidth  || 640;
+  var h = vid.videoHeight || vid.offsetHeight || 480;
+  if(w===0||h===0){w=640;h=480;}
+
+  canvas.width=w; canvas.height=h;
+  var ctx=canvas.getContext('2d');
+
+  // Mirror if front camera
+  if(camFacing==='user'){ctx.save();ctx.translate(w,0);ctx.scale(-1,1);}
+  ctx.drawImage(vid,0,0,w,h);
+  if(camFacing==='user')ctx.restore();
+
+  // HUD overlay
+  ctx.strokeStyle='rgba(0,245,255,0.7)';ctx.lineWidth=3;
+  var cs=28;
+  ctx.beginPath();ctx.moveTo(cs,0);ctx.lineTo(0,0);ctx.lineTo(0,cs);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w-cs,0);ctx.lineTo(w,0);ctx.lineTo(w,cs);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,h-cs);ctx.lineTo(0,h);ctx.lineTo(cs,h);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w-cs,h);ctx.lineTo(w,h);ctx.lineTo(w,h-cs);ctx.stroke();
+
+  // Labels
+  ctx.fillStyle='rgba(0,245,255,0.9)';
+  ctx.font='bold 14px monospace';
+  ctx.fillText('JARVIS CAM // '+PR[user].n, 12, 22);
+  ctx.fillStyle='rgba(0,245,255,0.6)';
+  ctx.font='11px monospace';
+  var now=new Date();
+  var ts=('0'+now.getHours()).slice(-2)+':'+('0'+now.getMinutes()).slice(-2)+
+         '  '+now.getDate()+'.'+(now.getMonth()+1)+'.'+now.getFullYear();
+  ctx.fillText(ts, 12, h-10);
+
+  // Export — try JPEG first, fallback to PNG
+  try {
+    camPhotoData = canvas.toDataURL('image/jpeg', 0.45);
+  } catch(e) {
+    camPhotoData = canvas.toDataURL('image/png');
+  }
+
+  if(!camPhotoData || camPhotoData==='data:,'){
+    say('Fotograf cekilemedı, tekrar dene.');
+    return;
+  }
+
+  // Show preview
+  var prev=document.getElementById('cam-preview');
+  prev.src=camPhotoData;
+  prev.style.display='block';
+  prev.style.width='100%';
+  vid.style.display='none';
+  document.querySelector('.cam-controls').style.display='none';
+  document.getElementById('cam-preview-bar').style.display='flex';
+
+  // Flash
+  var btn=document.getElementById('cam-shoot');
+  btn.classList.add('flash');
+  setTimeout(function(){btn.classList.remove('flash');},200);
+}
+
+function camRetake(){
+  camPhotoData=null;
+  document.getElementById('cam-preview').style.display='none';
+  document.getElementById('cam-video').style.display='block';
+  document.querySelector('.cam-controls').style.display='flex';
+  document.getElementById('cam-preview-bar').style.display='none';
+}
+
+function camPost(){
+  if(!camPhotoData){return;}
+  if(!jgRef){alert('İnternet bağlantısı gerekiyor.');return;}
+  var caption=document.getElementById('cam-caption').value.trim()||'📷 Fotoğraf';
+  var post={uid:user,name:PR[user].n,text:caption,photo:camPhotoData,time:Date.now(),likes:0};
+  jgRef.push(post);
+  say('Fotograf Jarvis-Gram paylasildi, '+PR[user].n+'.');
+  closeCam();
+  // Open gram to see it
+  setTimeout(function(){openModal('jg-modal');},400);
+}
+
+function closeCam(){
+  if(camStream){camStream.getTracks().forEach(function(t){t.stop();});camStream=null;}
+  document.getElementById('cam-modal').classList.remove('vis');
+  // Reset cam state
+  camPhotoData=null;
+  var vid=document.getElementById('cam-video');
+  var prev=document.getElementById('cam-preview');
+  if(vid){vid.srcObject=null;vid.style.display='block';}
+  if(prev){prev.style.display='none';}
+  var ctrl=document.querySelector('.cam-controls');
+  var pbar=document.getElementById('cam-preview-bar');
+  if(ctrl)ctrl.style.display='flex';
+  if(pbar)pbar.style.display='none';
+}
+
+/* ════ WebRTC VIDEO CALL ════ */
+var pc=null, localStream=null, callTimerInt=null, callSecs=0;
+var vcallRef=null, vcallMuted=false, vcallCamOff=false;
+var ICE_SERVERS={iceServers:[{urls:['stun:stun1.l.google.com:19302','stun:stun2.l.google.com:19302']}]};
+
+function vcallGetTarget(){return user==='yunus'?'emir':'yunus';}
+
+function vcallCall(){
+  if(!db){say('İnternet bağlantısı gerekiyor.');return;}
+  var target=vcallGetTarget();
+  var callId=user+'_'+Date.now();
+  vcallRef=db.ref('vcalls/'+callId);
+  vcallSetup(true, callId, target);
+}
+
+function vcallSetup(isCaller, callId, target){
+  navigator.mediaDevices.getUserMedia({video:true,audio:true}).then(function(stream){
+    localStream=stream;
+    document.getElementById('vcall-local').srcObject=stream;
+    showVcall(isCaller?PR[target].n:PR[user==='yunus'?'emir':'yunus'].n);
+
+    pc=new RTCPeerConnection(ICE_SERVERS);
+    stream.getTracks().forEach(function(t){pc.addTrack(t,stream);});
+
+    pc.ontrack=function(e){
+      document.getElementById('vcall-remote').srcObject=e.streams[0];
+      document.getElementById('vcall-status').textContent='BAĞLANDI ✅';
+      startCallTimer();
+    };
+
+    pc.onicecandidate=function(e){
+      if(e.candidate&&vcallRef){
+        vcallRef.child(isCaller?'callerCandidates':'calleeCandidates').push(e.candidate.toJSON());
+      }
+    };
+
+    if(isCaller){
+      pc.createOffer().then(function(offer){
+        return pc.setLocalDescription(offer);
+      }).then(function(){
+        vcallRef.set({
+          caller:user, callee:target,
+          offer:{type:pc.localDescription.type,sdp:pc.localDescription.sdp},
+          status:'calling'
+        });
+        // Listen for answer
+        vcallRef.child('answer').on('value',function(snap){
+          if(snap.exists()&&pc.signalingState!=='stable'){
+            pc.setRemoteDescription(new RTCSessionDescription(snap.val()));
+          }
+        });
+        // Listen for callee candidates
+        vcallRef.child('calleeCandidates').on('child_added',function(snap){
+          if(pc)pc.addIceCandidate(new RTCIceCandidate(snap.val()));
+        });
+        // Show ringing
+        document.getElementById('vcall-status').textContent='ÇAĞRILIYOR...';
+        say(PR[target].n+' aranıyor...',false);
+      });
+
+      // Listen for decline/end
+      vcallRef.child('status').on('value',function(snap){
+        if(snap.val()==='declined'){say('Arama reddedildi.');vcallCleanup();}
+        if(snap.val()==='ended'){vcallCleanup();}
+      });
+
+    } else {
+      // Callee — set remote offer, create answer
+      vcallRef.child('offer').once('value',function(snap){
+        if(!snap.exists())return;
+        pc.setRemoteDescription(new RTCSessionDescription(snap.val())).then(function(){
+          return pc.createAnswer();
+        }).then(function(answer){
+          return pc.setLocalDescription(answer);
+        }).then(function(){
+          vcallRef.child('answer').set({type:pc.localDescription.type,sdp:pc.localDescription.sdp});
+          vcallRef.child('status').set('connected');
+        });
+      });
+      // Listen for caller candidates
+      vcallRef.child('callerCandidates').on('child_added',function(snap){
+        if(pc)pc.addIceCandidate(new RTCIceCandidate(snap.val()));
+      });
+      vcallRef.child('status').on('value',function(snap){
+        if(snap.val()==='ended'){vcallCleanup();}
+      });
+    }
+  }).catch(function(err){
+    console.warn('Kamera hatasi:', err.name, err.message);
+    if(err.name==='NotAllowedError'){
+      say('Kamera izni reddedildi. Tarayici ayarlarindan izin ver.');
+    } else if(err.name==='NotFoundError'){
+      say('Kamera bulunamadi.');
+    } else if(location.protocol==='file:'){
+      say('Kamera yerel dosyada calismiyor. Netlify linkini kullan.');
+    } else {
+      say('Kamera hatasi: '+err.message);
+    }
+    closeModal('cam-modal');
+  });
+}
+
+function showVcall(callerName){
+  document.getElementById('vcall-overlay').classList.add('vis');
+  document.getElementById('vcall-name').textContent=callerName;
+  document.getElementById('vcall-timer').style.display='none';
+  document.getElementById('vcall-status').textContent='BAĞLANIYOR...';
+}
+
+function startCallTimer(){
+  callSecs=0;
+  document.getElementById('vcall-timer').style.display='block';
+  callTimerInt=setInterval(function(){
+    callSecs++;
+    var m=Math.floor(callSecs/60),s=callSecs%60;
+    document.getElementById('vcall-timer').textContent=('0'+m).slice(-2)+':'+('0'+s).slice(-2);
+  },1000);
+}
+
+function vcallToggleMute(){
+  vcallMuted=!vcallMuted;
+  if(localStream)localStream.getAudioTracks().forEach(function(t){t.enabled=!vcallMuted;});
+  var btn=document.getElementById('vcall-mute-btn');
+  btn.textContent=vcallMuted?'🔇':'🎤';
+  btn.classList.toggle('active',vcallMuted);
+}
+
+function vcallToggleCam(){
+  vcallCamOff=!vcallCamOff;
+  if(localStream)localStream.getVideoTracks().forEach(function(t){t.enabled=!vcallCamOff;});
+  var btn=document.getElementById('vcall-cam-btn');
+  btn.textContent=vcallCamOff?'🚫':'📷';
+  btn.classList.toggle('active',vcallCamOff);
+}
+
+function vcallEnd(){
+  if(vcallRef)vcallRef.child('status').set('ended');
+  vcallCleanup();
+}
+
+function vcallDecline(){
+  if(vcallRef)vcallRef.child('status').set('declined');
+  vcallCleanup();
+  document.getElementById('vcall-incoming').classList.remove('vis');
+}
+
+function vcallAnswer(){
+  document.getElementById('vcall-incoming').classList.remove('vis');
+  vcallSetup(false, vcallRef.key, vcallRef.key.split('_')[0]);
+}
+
+function vcallCleanup(){
+  if(callTimerInt){clearInterval(callTimerInt);callTimerInt=null;}
+  if(pc){pc.close();pc=null;}
+  if(localStream){localStream.getTracks().forEach(function(t){t.stop();});localStream=null;}
+  if(vcallRef){vcallRef.off();vcallRef=null;}
+  document.getElementById('vcall-overlay').classList.remove('vis');
+  document.getElementById('vcall-remote').srcObject=null;
+  document.getElementById('vcall-local').srcObject=null;
+  vcallMuted=false;vcallCamOff=false;
+  document.getElementById('vcall-mute-btn').textContent='🎤';
+  document.getElementById('vcall-cam-btn').textContent='📷';
+}
+
+function vcallListenIncoming(){
+  if(!db)return;
+  var target=vcallGetTarget();
+  // Listen for calls where I am the callee
+  db.ref('vcalls').orderByChild('callee').equalTo(user).limitToLast(1).on('child_added',function(snap){
+    var d=snap.val();
+    if(d.status!=='calling')return;
+    // Show incoming call UI
+    var callerName=PR[d.caller]?PR[d.caller].n:d.caller;
+    document.getElementById('inc-caller-name').textContent=callerName+' ARIYOR...';
+    document.getElementById('vcall-incoming').classList.add('vis');
+    vcallRef=db.ref('vcalls/'+snap.key);
+    // Ring sound via speech
+    say(callerName+' sizi arıyor, '+PR[user].n+'.');
+    // Auto decline after 30s
+    setTimeout(function(){
+      if(document.getElementById('vcall-incoming').classList.contains('vis')){
+        vcallDecline();
+      }
+    },30000);
+  });
+}
+
+/* ════ ARMOR CAM ════ */
+var armorStream=null, suitOn=false, maskOn=false;
+var armorMarks=[5,42,50,85], armorMarkIdx=2;
+var armorMarkNames={5:'MARK 5',42:'MARK 42',50:'MARK 50',85:'MARK 85'};
+var armorMarkColors={5:'#ff3333',42:'#ffcc00',50:'#00d4ff',85:'#ff0000'};
+
+function openArmorCam(){
+  document.getElementById('armor-cam-modal').classList.add('vis');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user'},audio:false}).then(function(stream){
+    armorStream=stream;
+    var vid=document.getElementById('armor-video');
+    vid.srcObject=stream;
+    // Mirror front camera
+    vid.style.transform='scaleX(-1)';
+    // Show chest reactor after 1s
+    setTimeout(function(){
+      document.getElementById('chest-reactor').classList.add('vis');
+    },800);
+    say('Zirh kamerasi aktif, '+PR[user].n+'. Mark '+armorMarks[armorMarkIdx]+' hazir.');
+  }).catch(function(err){
+    say('Kamera izni gerekiyor.');
+    closeArmorCam();
+  });
+}
+
+function closeArmorCam(){
+  if(armorStream){armorStream.getTracks().forEach(function(t){t.stop();});armorStream=null;}
+  document.getElementById('armor-cam-modal').classList.remove('vis');
+  document.getElementById('chest-reactor').classList.remove('vis');
+  document.getElementById('suit-overlay').classList.remove('suited');
+  document.getElementById('mask-overlay').classList.remove('vis');
+  suitOn=false; maskOn=false;
+  document.getElementById('suit-btn-lbl').textContent='ZIRH GİY';
+  document.getElementById('mask-btn-lbl').textContent='MASK AÇ';
+}
+
+function toggleSuit(){
+  suitOn=!suitOn;
+  var suit=document.getElementById('suit-overlay');
+  var btn=document.getElementById('suit-btn-lbl');
+  if(suitOn){
+    suit.classList.add('suited');
+    btn.textContent='ZIRH ÇIK';
+    // Play armor sound
+    playArmorSound();
+    say('Zirh devrede, '+PR[user].n+'.');
+  } else {
+    suit.classList.remove('suited');
+    btn.textContent='ZIRH GİY';
+    say('Zirh devre disi.');
+  }
+}
+
+function toggleMask(){
+  maskOn=!maskOn;
+  var mask=document.getElementById('mask-overlay');
+  var btn=document.getElementById('mask-btn-lbl');
+  if(maskOn){
+    mask.classList.add('vis');
+    btn.textContent='MASK KAPAT';
+    say('Maske aktif.');
+  } else {
+    mask.classList.remove('vis');
+    btn.textContent='MASK AÇ';
+    say('Maske kaldirildi.');
+  }
+}
+
+function armorNextMark(){
+  armorMarkIdx=(armorMarkIdx+1)%armorMarks.length;
+  var mark=armorMarks[armorMarkIdx];
+  var name=armorMarkNames[mark];
+  var color=armorMarkColors[mark];
+  document.getElementById('armor-mark').textContent=name;
+  document.getElementById('armor-mark').style.color=color;
+  document.getElementById('armor-mark').style.textShadow='0 0 12px '+color;
+  document.getElementById('armor-mark-lbl').textContent=name;
+  // Update chest reactor color
+  var svg=document.querySelector('#chest-reactor svg');
+  if(svg) svg.style.filter='drop-shadow(0 0 8px '+color+') drop-shadow(0 0 20px '+color+')';
+  say(name+' sistemi aktif, '+PR[user].n+'.');
+  // Also update main armor gallery
+  if(typeof selectMark==='function') selectMark(mark,'',color,0,0,0);
+}
+
+function playArmorSound(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    var t=ctx.currentTime;
+    // Metal clanking sound simulation
+    [200,400,300,600,500,800].forEach(function(f,i){
+      var o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type='square';o.frequency.value=f;
+      g.gain.setValueAtTime(0,t+i*.06);
+      g.gain.linearRampToValueAtTime(.12,t+i*.06+.02);
+      g.gain.linearRampToValueAtTime(0,t+i*.06+.055);
+      o.start(t+i*.06);o.stop(t+i*.06+.06);
+    });
+    // Power hum
+    var o2=ctx.createOscillator(),g2=ctx.createGain();
+    o2.connect(g2);g2.connect(ctx.destination);
+    o2.type='sawtooth';o2.frequency.value=80;
+    g2.gain.setValueAtTime(0,t+.4);
+    g2.gain.linearRampToValueAtTime(.15,t+.55);
+    g2.gain.linearRampToValueAtTime(0,t+1.0);
+    o2.start(t+.4);o2.stop(t+1.1);
+  }catch(e){}
+}
+
+/* Voice commands for armor */
+/* Added to recognition.onresult in voice section below */
+
+/* ════ FIREBASE ════ */
+function initFirebase(){
+  try{
+    if(typeof firebase==='undefined')throw new Error('not loaded');
+    if(!firebase.apps.length){firebase.initializeApp({apiKey:"AIzaSyAot0Hr56eTgWPW6-pu4MhotIYhSrmWwpM",authDomain:"emyuq-cff88.firebaseapp.com",databaseURL:"https://emyuq-cff88-default-rtdb.firebaseio.com",projectId:"emyuq-cff88",storageBucket:"emyuq-cff88.firebasestorage.app",messagingSenderId:"1058898288461",appId:"1:1058898288461:web:94ad170b9bbaeaa0266104"});}
+    db=firebase.database();
+    snakeInit(db);
+    // Sync passwords from Firebase
+    db.ref('jarvis_passwords').once('value',function(snap){if(snap.exists()){var d=snap.val();if(d.yunus&&!getPass('yunus'))try{localStorage.setItem('jp_yunus',d.yunus);}catch(e){}if(d.emir&&!getPass('emir'))try{localStorage.setItem('jp_emir',d.emir);}catch(e){}}}); 
+    chatRef=db.ref('jarvis_chat');
+    jgRef=db.ref('jarvisgram_posts');
+    setTimeout(vcallListenIncoming,1000);
+  }catch(e){console.warn('Firebase offline:',e.message);}
+}
+
+/* ════ INIT ════ */
+// Play intro then show lock screen
+(function(){
+  var intro = document.getElementById('arc-intro');
+  // Hide app elements during intro
+  document.getElementById('app').style.opacity='0';
+  document.getElementById('upb').style.display='none';
+  document.getElementById('lock-modal').classList.remove('vis');
+  document.getElementById('setup-modal').classList.remove('vis');
+
+  setTimeout(function(){
+    // Flash to white then reveal
+    intro.classList.add('done');
+    document.getElementById('app').style.transition='opacity .5s';
+    document.getElementById('app').style.opacity='1';
+    document.getElementById('upb').style.display='flex';
+    initLockScreen();
+  }, 3400);
+})();
+
+/* Service Worker: Netlify'da otomatik aktif olur */
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js" onload="initFirebase()" onerror="console.warn('Firebase CDN failed')"></script>
+</body>
+</html>
